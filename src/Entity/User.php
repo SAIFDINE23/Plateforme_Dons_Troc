@@ -51,6 +51,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Annonce::class, mappedBy: 'owner', orphanRemoval: true)]
     private Collection $annonces;
+    
+    /**
+     * @var Collection<int, Annonce>
+     */
+    #[ORM\ManyToMany(targetEntity: Annonce::class)]
+    #[ORM\JoinTable(name: 'user_favorites')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'annonce_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private Collection $favorites;
 
     /**
      * @var Collection<int, Conversation>
@@ -89,6 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles = ['ROLE_USER'];
         $this->charteAgreements = new ArrayCollection();
         $this->annonces = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
         $this->conversations = new ArrayCollection();
         $this->participatingConversations = new ArrayCollection();
         $this->messages = new ArrayCollection();
@@ -236,6 +246,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $annonce->setOwner(null);
             }
         }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Annonce>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Annonce $annonce): static
+    {
+        if (!$this->favorites->contains($annonce)) {
+            $this->favorites->add($annonce);
+        }
+        return $this;
+    }
+
+    public function removeFavorite(Annonce $annonce): static
+    {
+        $this->favorites->removeElement($annonce);
         return $this;
     }
 

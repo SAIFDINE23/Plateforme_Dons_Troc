@@ -22,4 +22,11 @@ class UserController extends AbstractController
     {
         return $this->render('user/messages.html.twig');
     }
+
+    #[Route('/mes-favoris', name: 'app_user_favorites')]
+    #[IsGranted('ROLE_USER')]
+    public function favorites(): Response
+    {
+        return $this->render('user/favorites.html.twig');
+    }
 }

@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Tag, Clock, Eye } from 'lucide-react';
+import { MapPin, Tag, Clock, Eye, Heart } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import toast from 'react-hot-toast';
 
 /**
  * Composant AnnonceCard - Carte d'annonce moderne avec animations
  * Design institutionnel EILCO avec Framer Motion et Lucide Icons
  */
 const AnnonceCard = ({ annonce, index = 0 }) => {
+    const [isFavorite, setIsFavorite] = useState(!!annonce.isFavorite);
+
+    useEffect(() => {
+        setIsFavorite(!!annonce.isFavorite);
+    }, [annonce.isFavorite, annonce.id]);
+
     // Animation variants pour l'apparition progressive
     const cardVariants = {
         hidden: { 
@@ -61,6 +68,36 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
 
     const status = getStatusBadge(annonce.state);
 
+    const handleToggleFavorite = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const nextValue = !isFavorite;
+        setIsFavorite(nextValue);
+
+        try {
+            const response = await fetch(`/api/annonces/${annonce.id}/favorite`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la mise à jour');
+            }
+
+            const data = await response.json();
+            setIsFavorite(!!data.isFavorite);
+
+            if (data.isFavorite) {
+                toast.success('Ajouté aux favoris');
+            } else {
+                toast('Retiré des favoris');
+            }
+        } catch {
+            setIsFavorite(!nextValue);
+            toast.error('Erreur lors de la mise à jour');
+        }
+    };
+
     return (
         <motion.div
             variants={cardVariants}
@@ -97,7 +134,7 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
 
                     {/* Badge de statut */}
                     {annonce.state !== 'PUBLISHED' && (
-                        <div className="position-absolute top-0 start-0 m-2">
+                        <div className="position-absolute bottom-0 start-0 m-2">
                             <span className={`status-badge ${status.class}`}>
                                 {status.label}
                             </span>
@@ -155,11 +192,21 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
                     </div>
                 </div>
 
-                {/* Footer avec bouton d'action */}
-                <div className="card-footer">
+                {/* Footer avec bouton d'action et favoris */}
+                <div className="card-footer bg-white border-top-0 d-flex gap-2">
+                    <button
+                        type="button"
+                        className="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center flex-shrink-0"
+                        onClick={handleToggleFavorite}
+                        aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                        style={{ width: '42px', height: '42px' }}
+                        title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                    >
+                        <i className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'}`} style={{ fontSize: '1.2rem', color: isFavorite ? '#F07D00' : '#6c757d' }}></i>
+                    </button>
                     <a 
                         href={`/annonce/${annonce.id}`} 
-                        className="btn btn-primary btn-pill w-100 d-flex align-items-center justify-content-center gap-2"
+                        className="btn btn-primary btn-pill flex-grow-1 d-flex align-items-center justify-content-center gap-2"
                     >
                         <Eye size={18} />
                         <span>Voir l'annonce</span>

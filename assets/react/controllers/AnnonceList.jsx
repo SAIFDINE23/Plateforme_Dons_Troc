@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 import AnnonceCard from '../components/AnnonceCard';
 
 export default function AnnonceList() {
@@ -81,6 +82,7 @@ export default function AnnonceList() {
 
     return (
         <div className="container py-5">
+            <Toaster position="top-right" />
             {/* Hero Section avec Pattern */}
             <motion.div 
                 className="bg-hero-pattern rounded-4 mb-5 text-center"

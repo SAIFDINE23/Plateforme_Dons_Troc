@@ -54,8 +54,16 @@ class AnnonceApiController extends AbstractController
             ->addSelect('c', 'u', 'img');
 
         // Filtre obligatoire : PUBLISHED ou COMPLETED (visible publiquement)
-        $qb->andWhere('a.state IN (:states)')
-            ->setParameter('states', ['PUBLISHED', 'COMPLETED']);
+        // + les annonces du propriétaire connecté, quel que soit l'état
+        $currentUser = $this->getUser();
+        if ($currentUser instanceof User) {
+            $qb->andWhere('a.state IN (:states) OR a.owner = :currentUser')
+                ->setParameter('states', ['PUBLISHED', 'COMPLETED'])
+                ->setParameter('currentUser', $currentUser);
+        } else {
+            $qb->andWhere('a.state IN (:states)')
+                ->setParameter('states', ['PUBLISHED', 'COMPLETED']);
+        }
 
         // Filtre optionnel : Campus
         $campus = $request->query->get('campus');
@@ -84,6 +92,13 @@ class AnnonceApiController extends AbstractController
 
         // Exécuter la requête
         $annonces = $qb->getQuery()->getResult();
+
+        $favoriteIds = [];
+        if ($currentUser instanceof User) {
+            foreach ($currentUser->getFavorites() as $favorite) {
+                $favoriteIds[$favorite->getId()->toRfc4122()] = true;
+            }
+        }
 
         // Formater les données pour la réponse JSON
         $data = [];
@@ -121,6 +136,7 @@ class AnnonceApiController extends AbstractController
                 'createdAt' => $annonce->getCreatedAt() ? $annonce->getCreatedAt()->format('Y-m-d H:i:s') : null,
                 'state' => $annonce->getState()->value,
                 'isDonation' => $annonce->getType()->value === 'DON',
+                'isFavorite' => isset($favoriteIds[$annonce->getId()->toRfc4122()]),
             ];
         }
 
@@ -185,6 +201,11 @@ class AnnonceApiController extends AbstractController
             $ownerData['email'] = $annonce->getOwner()->getEmail();
         }
 
+        $isFavorite = false;
+        if ($currentUser instanceof User) {
+            $isFavorite = $currentUser->getFavorites()->contains($annonce);
+        }
+
         $data = [
             'id' => $annonce->getId()->toRfc4122(),
             'title' => $annonce->getTitle(),
@@ -197,8 +218,9 @@ class AnnonceApiController extends AbstractController
             'state' => $annonce->getState()->value,
             'image' => $image,
             'owner' => $ownerData,
-            'createdAt' => $annonce->getCreatedAt()->format('Y-m-d H:i:s'),
+            'createdAt' => $annonce->getCreatedAt()?->format('Y-m-d H:i:s'),
             'isOwner' => $isOwner,
+            'isFavorite' => $isFavorite,
         ];
 
         return $this->json($data);

@@ -139,8 +139,57 @@ h1, h2, h3, h4, h5, h6,
   
   .dropdown-menu {
     border: none;
-    box-shadow: $box-shadow;
-    border-radius: $border-radius;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-radius: $border-radius-lg;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    min-width: 220px;
+    
+    .dropdown-header {
+      color: $primary;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem;
+      background-color: rgba($primary, 0.05);
+      
+      i {
+        color: $secondary;
+      }
+    }
+    
+    .dropdown-item {
+      padding: 0.65rem 1.25rem;
+      color: $text-muted;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      
+      i {
+        width: 20px;
+        margin-right: 0.5rem;
+        color: $secondary;
+      }
+      
+      &:hover,
+      &:focus {
+        background-color: rgba($primary, 0.08);
+        color: $primary;
+        padding-left: 1.5rem;
+        
+        i {
+          color: $primary;
+        }
+      }
+      
+      &:active {
+        background-color: rgba($primary, 0.12);
+        color: $primary;
+      }
+    }
+    
+    .dropdown-divider {
+      margin: 0.5rem 0;
+      border-color: rgba($primary, 0.1);
+    }
   }
   
   // Style pour les liens spéciaux (admin/moderateur)

@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     MapPin, Tag, Calendar, User, Mail, Edit, Trash2, 
     CheckCircle, MessageCircle, ArrowLeft, Gift, Repeat,
-    ShieldCheck, AlertCircle
+    ShieldCheck, AlertCircle, Heart
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function AnnonceShow({ id }) {
     const [annonce, setAnnonce] = useState(null);
@@ -13,6 +14,7 @@ export default function AnnonceShow({ id }) {
     const [error, setError] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [finishing, setFinishing] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
 
     // Charger les détails de l'annonce
     useEffect(() => {
@@ -29,6 +31,7 @@ export default function AnnonceShow({ id }) {
                 console.log('AnnonceShow: isOwner =', data.isOwner);
                 console.log('AnnonceShow: Owner =', data.owner);
                 setAnnonce(data);
+                setIsFavorite(!!data.isFavorite);
                 setLoading(false);
             })
             .catch(err => {
@@ -117,6 +120,33 @@ export default function AnnonceShow({ id }) {
         }
     };
 
+    const handleToggleFavorite = async () => {
+        const nextValue = !isFavorite;
+        setIsFavorite(nextValue);
+
+        try {
+            const response = await fetch(`/api/annonces/${id}/favorite`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la mise à jour');
+            }
+
+            const data = await response.json();
+            setIsFavorite(!!data.isFavorite);
+
+            if (data.isFavorite) {
+                toast.success('Ajouté aux favoris');
+            } else {
+                toast('Retiré des favoris');
+            }
+        } catch {
+            setIsFavorite(!nextValue);
+            toast.error('Erreur lors de la mise à jour');
+        }
+    };
+
     // État de chargement
     if (loading) {
         return (
@@ -169,12 +199,14 @@ export default function AnnonceShow({ id }) {
     };
 
     return (
-        <motion.div 
-            className="row g-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-        >
+        <>
+            <Toaster position="top-right" />
+            <motion.div 
+                className="row g-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+            >
             {/* COLONNE GAUCHE : IMAGE */}
             <div className="col-lg-6">
                 <AnimatePresence>
@@ -244,14 +276,27 @@ export default function AnnonceShow({ id }) {
             {/* COLONNE DROITE : DÉTAILS & ACTIONS */}
             <div className="col-lg-6">
                 {/* Titre */}
-                <motion.h1 
-                    className="mb-4"
+                <motion.div 
+                    className="d-flex align-items-center justify-content-between gap-3 mb-4"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
                 >
-                    {title}
-                </motion.h1>
+                    <h1 className="mb-0">{title}</h1>
+                    <button
+                        type="button"
+                        className="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                        onClick={handleToggleFavorite}
+                        aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                        style={{ width: '44px', height: '44px', backgroundColor: '#ffffff' }}
+                    >
+                        <Heart
+                            size={20}
+                            style={{ color: isFavorite ? '#F07D00' : '#6c757d' }}
+                            fill={isFavorite ? '#F07D00' : 'none'}
+                        />
+                    </button>
+                </motion.div>
 
                 {/* Métadonnées - Campus & Catégorie */}
                 <motion.div 
@@ -424,6 +469,7 @@ export default function AnnonceShow({ id }) {
                     </motion.div>
                 )}
             </div>
-        </motion.div>
+            </motion.div>
+        </>
     );
 }
