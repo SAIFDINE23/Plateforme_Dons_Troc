@@ -1,0 +1,34 @@
+# Dockerfile pour l'application Symfony
+# Pour un déploiement futur
+
+FROM php:8.3-cli-alpine
+
+# Installer les extensions PHP nécessaires
+RUN apk add --no-cache \
+    postgresql-dev \
+    icu-dev \
+    zip \
+    git \
+    && docker-php-ext-install \
+    pdo \
+    pdo_pgsql \
+    intl \
+    opcache
+
+# Installer Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Configurer le répertoire de travail
+WORKDIR /var/www/html
+
+# Copier les fichiers de l'application
+COPY . .
+
+# Installer les dépendances PHP
+RUN composer install --no-dev --optimize-autoloader
+
+# Exposer le port
+EXPOSE 8000
+
+# Commande par défaut
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]

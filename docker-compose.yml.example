@@ -1,0 +1,62 @@
+# Docker Compose pour Plateforme de Dons et Troc
+# Pour un déploiement futur
+
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  database:
+    image: postgres:16-alpine
+    container_name: plateforme_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: plateforme_dons_troc
+      POSTGRES_USER: plateforme_user
+      POSTGRES_PASSWORD: plateforme_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - plateforme_network
+
+  # Application PHP/Symfony
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: plateforme_app
+    restart: unless-stopped
+    depends_on:
+      - database
+    environment:
+      DATABASE_URL: postgresql://plateforme_user:plateforme_password@database:5432/plateforme_dons_troc?serverVersion=16&charset=utf8
+      APP_ENV: dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
+    networks:
+      - plateforme_network
+    command: php -S 0.0.0.0:8000 -t public
+
+  # Node.js pour la compilation des assets (développement uniquement)
+  node:
+    image: node:20-alpine
+    container_name: plateforme_node
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npm run watch
+    networks:
+      - plateforme_network
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  plateforme_network:
+    driver: bridge

@@ -1,0 +1,110 @@
+<nav class="navbar navbar-expand-lg navbar-eilco">
+    <div class="container-fluid">
+        {# Logo / Marque #}
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ path('app_home') }}">
+            <img src="{{ asset('images/ulco.png') }}" alt="ULCO" style="height: 50px; width: auto;" class="me-3">
+            <span style="font-size: 1.4rem; letter-spacing: 0.5px;">ULC'OCCAZ</span>
+        </a>
+
+        {# Bouton Hamburger (Mobile) #}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        {# Contenu de la Navbar #}
+        <div class="collapse navbar-collapse" id="navbarContent">
+            {# Liens Principaux (Gauche/Centre) #}
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {# Lien Accueil - Visible pour TOUS #}
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ path('app_home') }}">
+                        <i class="bi bi-house-door"></i> Accueil
+                    </a>
+                </li>
+
+                {# Liens réservés aux utilisateurs CONNECTÉS #}
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_annonce_new') }}">
+                            <i class="bi bi-plus-circle"></i> Déposer une annonce
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_user_messages') }}">
+                            <i class="bi bi-chat-dots"></i> Mes Messages
+                        </a>
+                    </li>
+                {% endif %}
+
+                {# Menu Spécial MODÉRATEUR #}
+                {% if is_granted('ROLE_MODERATOR') %}
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold" href="{{ path('app_admin_dashboard') }}" style="background-color: rgba(255, 255, 255, 0.15); border-radius: 0.375rem;">
+                            <i class="bi bi-shield-check"></i> Espace Modération
+                        </a>
+                    </li>
+                {% endif %}
+
+                {# Menu Spécial ADMIN #}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold" href="{{ path('app_admin_dashboard') }}" style="background-color: rgba(255, 255, 255, 0.2); border-radius: 0.375rem;">
+                            <i class="bi bi-gear"></i> Administration
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            {# Actions Utilisateur (Droite) #}
+            <div class="d-flex align-items-center gap-2">
+                {% if app.user %}
+                    <div class="me-2" {{ react_component('NotificationBell') }}></div>
+                    {# Menu Dropdown Utilisateur Connecté #}
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i>
+                            <span class="ms-1">{{ app.user.casUid }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userMenu">
+                            <li>
+                                <h6 class="dropdown-header">
+                                    <i class="bi bi-envelope"></i> {{ app.user.email }}
+                                </h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-person"></i> Mon Profil
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_user_annonces') }}">
+                                    <i class="bi bi-list-ul"></i> Mes Annonces
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-heart"></i> Favoris
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    {# Bouton Déconnexion Direct (Visible) #}
+                    <a href="{{ path('app_logout') }}" class="btn btn-light btn-sm">
+                        <i class="bi bi-box-arrow-right"></i> 
+                        <span class="d-none d-md-inline">Déconnexion</span>
+                    </a>
+                {% else %}
+                    {# Bouton de Connexion pour visiteurs NON connectés #}
+                    <a href="{{ path('app_login') }}" class="btn btn-primary btn-pill">
+                        <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

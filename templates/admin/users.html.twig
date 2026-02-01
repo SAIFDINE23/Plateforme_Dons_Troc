@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des utilisateurs - ULC'OCCAZ{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h1 class="mb-4">
+        <i class="bi bi-people-fill me-2"></i>
+        Gestion des utilisateurs
+    </h1>
+
+    <div {{ react_component('UserManager') }}></div>
+</div>
+{% endblock %}

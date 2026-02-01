@@ -1,0 +1,609 @@
+// =====================================
+// ULC'OCCAZ - IDENTITÉ VISUELLE EILCO
+// Design Institutionnel Moderne
+// =====================================
+
+// 1. IMPORTS GOOGLE FONTS
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+
+// 2. PALETTE DE COULEURS EILCO/ULCO
+$primary: #004E86;        // Bleu EILCO (Navbar, Titres)
+$secondary: #009FE3;      // Cyan/Ciel (Dégradés, Icônes)
+$accent: #F07D00;         // Orange (CTA Buttons)
+$success: #28a745;
+$info: $secondary;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #212529;
+
+// Couleurs de fond et texte
+$body-bg: #F4F7FA;        // Gris bleuté très pâle
+$body-color: #212529;     // Gris très foncé
+$text-muted: #6c757d;
+
+// Footer
+$footer-bg: #003355;      // Bleu foncé institutionnel
+$footer-text: #e9ecef;
+
+// 3. OVERRIDE BOOTSTRAP VARIABLES
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "accent": $accent,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark
+);
+
+// 4. TYPOGRAPHIE
+$font-family-base: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+$font-family-headings: 'Montserrat', sans-serif;
+
+$headings-font-family: $font-family-headings;
+$headings-font-weight: 600;
+
+// Tailles de police
+$font-size-base: 1rem;
+$h1-font-size: 2.5rem;
+$h2-font-size: 2rem;
+$h3-font-size: 1.75rem;
+$h4-font-size: 1.5rem;
+$h5-font-size: 1.25rem;
+$h6-font-size: 1rem;
+
+// 5. BORDER RADIUS
+$border-radius: 0.5rem;
+$border-radius-sm: 0.375rem;
+$border-radius-lg: 0.75rem;
+$border-radius-pill: 50rem;
+
+// 6. SHADOWS
+$box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+$box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+$box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+
+// 7. IMPORT BOOTSTRAP (APRÈS les variables)
+@import '~bootstrap/scss/bootstrap';
+
+// =====================================
+// 8. STYLES GLOBAUX
+// =====================================
+
+body {
+  font-family: $font-family-base;
+  background-color: $body-bg;
+  color: $body-color;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: $font-family-headings;
+  font-weight: 600;
+  color: $primary;
+}
+
+// =====================================
+// 9. NAVBAR - FOND BLANC AVEC LOGO ULCO
+// =====================================
+
+.navbar-eilco {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.75rem 0;
+  border-bottom: 3px solid $primary;
+  
+  .navbar-brand {
+    font-family: $font-family-headings;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: $primary !important;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    
+    img {
+      transition: transform 0.2s ease;
+    }
+    
+    &:hover {
+      color: $secondary !important;
+      
+      img {
+        transform: scale(1.05);
+      }
+    }
+  }
+  
+  .nav-link {
+    color: $primary !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    
+    &:hover,
+    &:focus {
+      color: $secondary !important;
+      background-color: rgba($primary, 0.05);
+      border-radius: $border-radius-sm;
+    }
+    
+    &.active {
+      color: $secondary !important;
+      font-weight: 600;
+    }
+  }
+  
+  .dropdown-menu {
+    border: none;
+    box-shadow: $box-shadow;
+    border-radius: $border-radius;
+  }
+  
+  // Style pour les liens spéciaux (admin/moderateur)
+  .nav-link.fw-bold {
+    background-color: rgba($primary, 0.1) !important;
+    color: $primary !important;
+    
+    &:hover {
+      background-color: rgba($primary, 0.15) !important;
+      color: $primary !important;
+    }
+  }
+  
+  // Toggler icon pour mobile
+  .navbar-toggler {
+    border-color: rgba($primary, 0.2);
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
+    }
+    
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23004E86' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+  }
+}
+
+// =====================================
+// 10. BOUTONS - STYLE INSTITUTIONNEL
+// =====================================
+
+.btn {
+  font-weight: 500;
+  padding: 0.625rem 1.5rem;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    box-shadow: none;
+  }
+}
+
+.btn-primary {
+  background-color: $primary;
+  border-color: $primary;
+  color: white;
+  
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: darken($primary, 8%);
+    border-color: darken($primary, 8%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba($primary, 0.3);
+  }
+}
+
+.btn-outline-primary {
+  border-color: $primary;
+  color: $primary;
+  
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: $primary;
+    border-color: $primary;
+    color: white;
+  }
+}
+
+.btn-secondary {
+  background-color: $secondary;
+  border-color: $secondary;
+  color: white;
+  
+  &:hover {
+    background-color: darken($secondary, 10%);
+    border-color: darken($secondary, 10%);
+  }
+}
+
+// Boutons Pills (CTA)
+.btn-pill {
+  border-radius: $border-radius-pill;
+}
+
+// =====================================
+// 11. CARTES D'ANNONCES - DESIGN MODERNE
+// =====================================
+
+.card-annonce {
+  border: none;
+  border-radius: $border-radius-lg;
+  background-color: white;
+  box-shadow: $box-shadow-sm;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  height: 100%;
+  
+  &:hover {
+    box-shadow: $box-shadow;
+    transform: translateY(-4px);
+  }
+  
+  .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: $border-radius-lg;
+    border-top-right-radius: $border-radius-lg;
+  }
+  
+  .card-body {
+    padding: 1.25rem;
+  }
+  
+  .card-title {
+    font-family: $font-family-headings;
+    font-weight: 600;
+    color: $primary;
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .card-text {
+    color: $text-muted;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
+  .card-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba($primary, 0.1);
+    padding: 1rem 1.25rem;
+  }
+}
+
+// Badge pour catégories/statuts
+.badge-eilco {
+  background: linear-gradient(135deg, $primary, $secondary);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: $border-radius-pill;
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.3px;
+}
+
+.badge-accent {
+  background-color: $accent;
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: $border-radius-pill;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+// =====================================
+// 12. FOOTER INSTITUTIONNEL
+// =====================================
+
+.footer-eilco {
+  background-color: $footer-bg;
+  color: $footer-text;
+  padding: 3rem 0 1.5rem;
+  margin-top: 4rem;
+  
+  h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.125rem;
+  }
+  
+  a {
+    color: lighten($footer-text, 10%);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: white;
+      text-decoration: underline;
+    }
+  }
+  
+  .footer-copyright {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+    margin-top: 2rem;
+    font-size: 0.875rem;
+    color: rgba($footer-text, 0.7);
+  }
+}
+
+// =====================================
+// 13. HERO PATTERN (Page d'accueil)
+// =====================================
+
+.bg-hero-pattern {
+  background: 
+    linear-gradient(135deg, rgba($primary, 0.95) 0%, rgba($secondary, 0.9) 100%),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.03) 10px,
+      rgba(255, 255, 255, 0.03) 20px
+    );
+  color: white;
+  padding: 4rem 0;
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: white;
+  }
+}
+
+// Alternative: Motif subtil de carrés
+.bg-pattern-squares {
+  background-color: $primary;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+// =====================================
+// 14. FORMULAIRES
+// =====================================
+
+.form-control,
+.form-select {
+  border: 1px solid #dee2e6;
+  border-radius: $border-radius;
+  padding: 0.625rem 1rem;
+  
+  &:focus {
+    border-color: $secondary;
+    box-shadow: 0 0 0 0.2rem rgba($secondary, 0.15);
+  }
+}
+
+.form-label {
+  font-weight: 500;
+  color: $primary;
+  margin-bottom: 0.5rem;
+}
+
+// =====================================
+// 15. MARKDOWN CONTENT (Descriptions)
+// =====================================
+
+.markdown-content {
+  line-height: 1.7;
+  color: $body-color;
+  
+  h1, h2, h3, h4, h5, h6 {
+    margin: 1.25rem 0 0.75rem 0;
+    font-weight: 600;
+    color: $primary;
+  }
+  
+  p {
+    margin: 0 0 1rem 0;
+  }
+  
+  ul, ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  li {
+    margin-bottom: 0.4rem;
+  }
+  
+  code {
+    background-color: rgba($secondary, 0.1);
+    color: $primary;
+    padding: 0.2rem 0.4rem;
+    border-radius: $border-radius-sm;
+    font-size: 0.9em;
+  }
+  
+  blockquote {
+    border-left: 4px solid $secondary;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: $text-muted;
+    font-style: italic;
+  }
+  
+  a {
+    color: $secondary;
+    text-decoration: underline;
+    
+    &:hover {
+      color: darken($secondary, 15%);
+    }
+  }
+}
+
+.markdown-content--compact {
+  p, ul, ol {
+    margin-bottom: 0.5rem;
+  }
+}
+
+// =====================================
+// 16. UTILITAIRES PERSONNALISÉS
+// =====================================
+
+// Texte gradient
+.text-gradient-eilco {
+  background: linear-gradient(135deg, $primary, $secondary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+// Bordure accent
+.border-accent {
+  border-color: $accent !important;
+}
+
+.border-top-accent {
+  border-top: 3px solid $accent;
+}
+
+// Background dégradé
+.bg-gradient-eilco {
+  background: linear-gradient(135deg, $primary, $secondary);
+}
+
+// Ombres personnalisées
+.shadow-accent {
+  box-shadow: 0 0.5rem 1rem rgba($accent, 0.2);
+}
+
+.shadow-primary {
+  box-shadow: 0 0.5rem 1rem rgba($primary, 0.15);
+}
+
+// =====================================
+// 17. ANIMATIONS & TRANSITIONS
+// =====================================
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+// Smooth transitions
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// =====================================
+// 18. RESPONSIVE ENHANCEMENTS
+// =====================================
+
+@media (max-width: 768px) {
+  .navbar-eilco {
+    .navbar-brand {
+      font-size: 1.25rem;
+    }
+  }
+  
+  .card-annonce {
+    .card-img-top {
+      height: 180px;
+    }
+  }
+  
+  .bg-hero-pattern {
+    padding: 2.5rem 0;
+  }
+}
+
+// =====================================
+// 19. NOTIFICATION BELL (Custom)
+// =====================================
+
+.notification-bell {
+  position: relative;
+  cursor: pointer;
+  
+  .badge-notification {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: $danger;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: $border-radius-pill;
+    min-width: 18px;
+    text-align: center;
+  }
+}
+
+// =====================================
+// 20. ÉTATS & BADGES PERSONNALISÉS
+// =====================================
+
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: $border-radius-pill;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.status-published {
+    background-color: rgba($success, 0.15);
+    color: darken($success, 10%);
+    border: 1px solid rgba($success, 0.3);
+  }
+  
+  &.status-pending {
+    background-color: rgba($warning, 0.15);
+    color: darken($warning, 20%);
+    border: 1px solid rgba($warning, 0.3);
+  }
+  
+  &.status-rejected {
+    background-color: rgba($danger, 0.15);
+    color: darken($danger, 10%);
+    border: 1px solid rgba($danger, 0.3);
+  }
+  
+  &.status-completed {
+    background-color: rgba($secondary, 0.15);
+    color: darken($secondary, 15%);
+    border: 1px solid rgba($secondary, 0.3);
+  }
+}
+
+// =====================================
+// 21. LOADING & SPINNERS
+// =====================================
+
+.spinner-eilco {
+  border: 3px solid rgba($secondary, 0.2);
+  border-top-color: $secondary;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// =====================================
+// FIN DU FICHIER
+// =====================================

@@ -1,0 +1,236 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Charte d'utilisation - ULC'OCCAZ{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ulco: {
+                            DEFAULT: '#0b4aa8',
+                            50: '#eff5ff',
+                            100: '#dbe8ff',
+                            200: '#b8d1ff',
+                            300: '#8fb4ff',
+                            400: '#6291ff',
+                            500: '#3a6af0',
+                            600: '#2656d9',
+                            700: '#1c45b2',
+                            800: '#153689',
+                            900: '#0b255c'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Header Card -->
+        <div class="bg-gradient-to-r from-ulco to-ulco-600 rounded-t-3xl shadow-xl p-8 text-white">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="h-16 w-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center text-3xl">📜</div>
+                <div>
+                    <h1 class="text-3xl font-bold">Charte d'Utilisation</h1>
+                    <p class="text-white/90">Plateforme ULC'OCCAZ</p>
+                </div>
+            </div>
+            <p class="text-white/95 text-sm">Veuillez lire attentivement les conditions d'utilisation avant d'accepter.</p>
+        </div>
+
+        <!-- Content Card -->
+        <div class="bg-white shadow-xl rounded-b-3xl overflow-hidden">
+            <!-- Scrollable Content -->
+            <div class="px-8 py-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                
+                <!-- Section 1 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-ulco mb-3 flex items-center gap-2">
+                        <span class="h-8 w-8 bg-ulco-100 rounded-lg flex items-center justify-center text-sm">1</span>
+                        Préambule et Esprit de la Plateforme
+                    </h3>
+                    <div class="pl-10 text-slate-700 space-y-3">
+                        <p>
+                            <strong class="text-ulco">ULC'OCCAZ</strong> est une plateforme d'échange solidaire réservée exclusivement aux étudiants et au personnel de l'<strong>Université du Littoral Côte d'Opale (ULCO)</strong>.
+                            L'objectif est de favoriser l'entraide, le réemploi et l'économie circulaire sur nos campus.
+                        </p>
+                        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                            <p class="text-amber-900"><strong>⚡ Règle d'or :</strong> Aucune transaction financière n'est autorisée. Ici, on donne ou on troque, on n'achète pas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-6 border-slate-200">
+
+                <!-- Section 2 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-ulco mb-3 flex items-center gap-2">
+                        <span class="h-8 w-8 bg-ulco-100 rounded-lg flex items-center justify-center text-sm">2</span>
+                        Objets Autorisés et Interdits
+                    </h3>
+                    <div class="pl-10 text-slate-700 space-y-3">
+                        <p>Les utilisateurs s'engagent à proposer uniquement des biens légaux, propres et fonctionnels.</p>
+                        
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                            <p class="font-semibold text-emerald-800 mb-2">✅ Autorisés :</p>
+                            <p class="text-sm text-emerald-900">Livres, supports de cours, vêtements, petit électroménager, vaisselle, mobilier étudiant, matériel informatique.</p>
+                        </div>
+
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                            <p class="font-semibold text-red-800 mb-2">🚫 Strictement Interdits :</p>
+                            <ul class="text-sm text-red-900 list-disc list-inside space-y-1">
+                                <li>Armes, drogues, produits illicites ou dangereux</li>
+                                <li>Objets contrefaits</li>
+                                <li>Services rémunérés ou demandes d'argent</li>
+                                <li>Contenus à caractère pornographique ou violent</li>
+                                <li>Travaux universitaires (thèses, mémoires, rapports de stage) destinés à la triche</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-6 border-slate-200">
+
+                <!-- Section 3 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-ulco mb-3 flex items-center gap-2">
+                        <span class="h-8 w-8 bg-ulco-100 rounded-lg flex items-center justify-center text-sm">3</span>
+                        Organisation par Campus
+                    </h3>
+                    <div class="pl-10 text-slate-700 space-y-3">
+                        <p>
+                            Pour faciliter les échanges, chaque annonce doit être liée à l'un des campus de l'ULCO (<strong>Calais, Dunkerque, Boulogne-sur-Mer, Saint-Omer</strong>).
+                        </p>
+                        <p>L'utilisateur s'engage à indiquer le campus où l'objet est réellement disponible pour l'échange.</p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="px-3 py-1 bg-ulco-50 text-ulco text-sm rounded-full">📍 Calais</span>
+                            <span class="px-3 py-1 bg-ulco-50 text-ulco text-sm rounded-full">📍 Dunkerque</span>
+                            <span class="px-3 py-1 bg-ulco-50 text-ulco text-sm rounded-full">📍 Boulogne</span>
+                            <span class="px-3 py-1 bg-ulco-50 text-ulco text-sm rounded-full">📍 Saint-Omer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-6 border-slate-200">
+
+                <!-- Section 4 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-ulco mb-3 flex items-center gap-2">
+                        <span class="h-8 w-8 bg-ulco-100 rounded-lg flex items-center justify-center text-sm">4</span>
+                        Modération et Validation
+                    </h3>
+                    <div class="pl-10 text-slate-700 space-y-3">
+                        <p>Toute annonce est soumise à validation avant publication :</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <span class="text-ulco">•</span>
+                                <span>Un <strong>Modérateur de Campus</strong> valide les annonces spécifiques à son site.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-ulco">•</span>
+                                <span>Un <strong>Administrateur Global</strong> supervise l'ensemble de la plateforme.</span>
+                            </li>
+                        </ul>
+                        <p class="text-sm bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            Les modérateurs se réservent le droit de refuser toute annonce ne respectant pas cette charte, sans justification obligatoire. Ils peuvent également bannir un utilisateur en cas d'abus.
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="my-6 border-slate-200">
+
+                <!-- Section 5 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-ulco mb-3 flex items-center gap-2">
+                        <span class="h-8 w-8 bg-ulco-100 rounded-lg flex items-center justify-center text-sm">5</span>
+                        Sécurité et Rencontres
+                    </h3>
+                    <div class="pl-10 text-slate-700 space-y-3">
+                        <p>Les échanges se font en physique. Pour votre sécurité :</p>
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-2">
+                            <p class="flex items-start gap-2 text-sm">
+                                <span class="text-blue-600">🏛️</span>
+                                <span>Privilégiez les échanges <strong>dans l'enceinte de l'université</strong> (halls, cafétérias, bibliothèques) aux heures d'ouverture.</span>
+                            </p>
+                            <p class="flex items-start gap-2 text-sm">
+                                <span class="text-blue-600">🔒</span>
+                                <span>Ne donnez jamais d'informations personnelles sensibles (bancaires, adresse du domicile) via la messagerie.</span>
+                            </p>
+                            <p class="flex items-start gap-2 text-sm">
+                                <span class="text-blue-600">🤝</span>
+                                <span>Soyez courtois et respectueux dans vos échanges. Le harcèlement ou les insultes entraîneront une exclusion immédiate.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-6 border-slate-200">
+
+                <!-- Section 6 -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-ulco mb-3 flex items-center gap-2">
+                        <span class="h-8 w-8 bg-ulco-100 rounded-lg flex items-center justify-center text-sm">6</span>
+                        Clause de Non-Responsabilité
+                    </h3>
+                    <div class="pl-10 text-slate-700 space-y-3">
+                        <p>L'ULCO et l'équipe ULC'OCCAZ fournissent l'outil de mise en relation mais ne sont pas responsables :</p>
+                        <ul class="space-y-1 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-400">▸</span>
+                                <span>De l'état réel des objets échangés.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-400">▸</span>
+                                <span>Des rendez-vous manqués ou des conflits entre utilisateurs.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-400">▸</span>
+                                <span>De la perte ou du vol d'objets lors des échanges.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer with Accept Button -->
+            <div class="bg-gradient-to-r from-slate-50 to-slate-100 border-t border-slate-200 px-8 py-6">
+                <p class="text-center text-slate-600 text-sm mb-4">
+                    En cliquant sur le bouton ci-dessous, je certifie avoir lu et accepté sans réserve les conditions énoncées ci-dessus.
+                </p>
+                
+                <form action="{{ path('app_charte_sign') }}" method="post" class="text-center">
+                    <input type="hidden" name="_token" value="{{ csrf_token('sign_charte') }}">
+                    <button type="submit" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg transform transition hover:scale-105 flex items-center gap-2 mx-auto">
+                        <span>✅</span>
+                        <span>J'ai lu et j'accepte le règlement</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
+{% endblock %}

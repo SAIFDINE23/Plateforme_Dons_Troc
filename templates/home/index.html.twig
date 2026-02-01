@@ -1,0 +1,36 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Plateforme d'annonces - ULC'OCCAZ{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .hover-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {# React Component - inclut sa propre section hero #}
+    <div {{ react_component('AnnonceList') }}></div>
+
+    {# Footer déjà dans base.html.twig #}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // S'assurer que Bootstrap est correctement initialisé après le chargement de React
+        document.addEventListener('DOMContentLoaded', function() {
+            // Réinitialiser les composants Bootstrap si nécessaire
+            if (typeof bootstrap !== 'undefined') {
+                var dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+                dropdowns.forEach(function(dropdown) {
+                    new bootstrap.Dropdown(dropdown);
+                });
+            }
+        });
+    </script>
+{% endblock %}

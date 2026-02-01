@@ -1,0 +1,38 @@
+body {
+    background-color: skyblue;
+}
+
+.markdown-content {
+    line-height: 1.6;
+    color: inherit;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+}
+
+.markdown-content p {
+    margin: 0 0 0.75rem 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.markdown-content li {
+    margin-bottom: 0.25rem;
+}
+
+.markdown-content--compact p,
+.markdown-content--compact ul,
+.markdown-content--compact ol {
+    margin-bottom: 0.35rem;
+}

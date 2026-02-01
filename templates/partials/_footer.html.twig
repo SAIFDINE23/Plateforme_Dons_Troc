@@ -1,0 +1,110 @@
+<footer class="footer-eilco mt-auto">
+    <div class="container">
+        <div class="row">
+            {# Colonne 1 : À propos #}
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{{ asset('images/ulco.png') }}" alt="ULCO" style="height: 35px; width: auto;" class="me-2">
+                    <h5 class="mb-0">ULC'OCCAZ</h5>
+                </div>
+                <p class="small">
+                    La plateforme de dons et d'échanges entre étudiants de l'EILCO et de l'ULCO.
+                    Donnez une seconde vie à vos objets et faites des économies !
+                </p>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="https://www.univ-littoral.fr" target="_blank" class="text-white-50 hover-text-white" title="Site ULCO">
+                        <i class="bi bi-globe fs-5"></i>
+                    </a>
+                    <a href="mailto:contact@ulco.fr" class="text-white-50 hover-text-white" title="Nous contacter">
+                        <i class="bi bi-envelope fs-5"></i>
+                    </a>
+                    <a href="https://www.facebook.com/univlittoral" target="_blank" class="text-white-50 hover-text-white" title="Facebook ULCO">
+                        <i class="bi bi-facebook fs-5"></i>
+                    </a>
+                </div>
+            </div>
+
+            {# Colonne 2 : Liens rapides #}
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5>Liens rapides</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="{{ path('app_home') }}" class="text-white-50 text-decoration-none hover-text-white">
+                            <i class="bi bi-chevron-right small"></i> Catalogue
+                        </a>
+                    </li>
+                    {% if app.user %}
+                        <li class="mb-2">
+                            <a href="{{ path('app_annonce_new') }}" class="text-white-50 text-decoration-none hover-text-white">
+                                <i class="bi bi-chevron-right small"></i> Déposer une annonce
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ path('app_user_annonces') }}" class="text-white-50 text-decoration-none hover-text-white">
+                                <i class="bi bi-chevron-right small"></i> Mes annonces
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ path('app_user_messages') }}" class="text-white-50 text-decoration-none hover-text-white">
+                                <i class="bi bi-chevron-right small"></i> Mes messages
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="mb-2">
+                            <a href="{{ path('app_login') }}" class="text-white-50 text-decoration-none hover-text-white">
+                                <i class="bi bi-chevron-right small"></i> Se connecter
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            {# Colonne 3 : Informations légales #}
+            <div class="col-md-4">
+                <h5>Informations</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none hover-text-white">
+                            <i class="bi bi-chevron-right small"></i> Conditions d'utilisation
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none hover-text-white">
+                            <i class="bi bi-chevron-right small"></i> Politique de confidentialité
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none hover-text-white">
+                            <i class="bi bi-chevron-right small"></i> Mentions légales
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none hover-text-white">
+                            <i class="bi bi-chevron-right small"></i> Aide & Support
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {# Copyright #}
+        <div class="footer-copyright text-center">
+            <p class="mb-0">
+                &copy; {{ "now"|date("Y") }} <strong>EILCO - Université du Littoral Côte d'Opale</strong>
+                <br class="d-md-none">
+                <span class="d-none d-md-inline mx-2">|</span>
+                Tous droits réservés
+                <span class="d-none d-md-inline mx-2">|</span>
+                <br class="d-md-none">
+                Développé avec <i class="bi bi-heart-fill text-danger"></i> par les étudiants EILCO
+            </p>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .hover-text-white:hover {
+        color: white !important;
+        transition: color 0.2s ease;
+    }
+</style>

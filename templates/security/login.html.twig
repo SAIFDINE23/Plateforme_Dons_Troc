@@ -1,0 +1,86 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Connexion - Plateforme de Dons et Troc{% endblock %}
+
+{% block body %}
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center;">
+    <div style="width: 100%; max-width: 400px; margin: 0 auto;">
+        <div style="background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;">
+            <!-- Header -->
+            <div style="background: #667eea; color: white; padding: 30px; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px;">Plateforme de Dons et Troc</h1>
+                <p style="margin: 10px 0 0 0; opacity: 0.9;">Système d'authentification Mock</p>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 30px;">
+                {% if error %}
+                    <div style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; padding: 12px; margin-bottom: 20px;">
+                        <strong>Erreur d'authentification:</strong><br>
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{{ path('app_login') }}" style="margin: 0;">
+                    <!-- Champ CAS UID -->
+                    <div style="margin-bottom: 20px;">
+                        <label for="cas_uid" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
+                            Identifiant ULCO
+                        </label>
+                        <input 
+                            type="text" 
+                            id="cas_uid" 
+                            name="cas_uid" 
+                            class="form-control"
+                            value="{{ last_cas_uid }}"
+                            placeholder="ex: aglobal"
+                            required
+                            autofocus
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;"
+                        >
+                    </div>
+
+                    <!-- Champ Password -->
+                    <div style="margin-bottom: 20px;">
+                        <label for="password" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
+                            Mot de passe
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-control"
+                            placeholder="00000000"
+                            required
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;"
+                        >
+                    </div>
+
+                    <!-- CSRF Token -->
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.3s;"
+                        onmouseover="this.style.background='#5568d3'"
+                        onmouseout="this.style.background='#667eea'"
+                    >
+                        Se connecter
+                    </button>
+                </form>
+            </div>
+
+            <!-- Footer avec comptes de test -->
+            <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #e9ecef;">
+                <h6 style="margin-top: 0; margin-bottom: 12px; color: #333;">📋 Comptes de test disponibles:</h6>
+                <div style="background: white; border-left: 3px solid #667eea; padding: 10px; font-size: 13px; line-height: 1.6;">
+                    <strong>Admin Global:</strong> aglobal / 00000000<br>
+                    <strong>Modérateur Calais:</strong> jdupont / 00000000<br>
+                    <strong>Étudiant:</strong> sleroy / 00000000
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

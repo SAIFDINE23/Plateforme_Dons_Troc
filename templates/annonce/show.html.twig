@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ annonce.title }} - ULC'OCCAZ{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Catalogue</a></li>
+            <li class="breadcrumb-item active">{{ annonce.title }}</li>
+        </ol>
+    </nav>
+
+    {# Composant React pour afficher le détail #}
+    <div {{ react_component('AnnonceShow', { id: annonce.id.toRfc4122 }) }}></div>
+</div>
+{% endblock %}

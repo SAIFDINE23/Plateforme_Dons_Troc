@@ -1,0 +1,14 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Détail d'annonce à modérer - ULC'OCCAZ{% endblock %}
+
+{% block body %}
+    <div class="container my-4">
+        <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary mb-3">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour à la modération
+        </a>
+    </div>
+
+    <div {{ react_component('ModerationAnnonceShow', { id: id }) }}></div>
+{% endblock %}

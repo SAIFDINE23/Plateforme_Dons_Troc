@@ -1,0 +1,192 @@
+{% extends "base.html.twig" %}
+
+{% block title %}ULC’OCCAZ - Plateforme de dons & troc{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ulco: {
+                            DEFAULT: '#0b4aa8',
+                            50: '#eff5ff',
+                            100: '#dbe8ff',
+                            200: '#b8d1ff',
+                            300: '#8fb4ff',
+                            400: '#6291ff',
+                            500: '#3a6af0',
+                            600: '#2656d9',
+                            700: '#1c45b2',
+                            800: '#153689',
+                            900: '#0b255c'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="bg-slate-50 text-slate-800">
+    <!-- Navbar -->
+    <nav class="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-ulco flex items-center justify-center text-white font-bold">U</div>
+                <div>
+                    <div class="text-lg font-semibold text-ulco">ULC’OCCAZ</div>
+                    <div class="text-xs text-slate-500">Plateforme ULCO</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="#features" class="text-sm font-medium text-slate-600 hover:text-ulco">Fonctionnalités</a>
+                <a href="#campus" class="text-sm font-medium text-slate-600 hover:text-ulco">Campus</a>
+                <a href="{{ path('app_login') }}" class="px-4 py-2 rounded-lg bg-ulco text-white text-sm font-semibold shadow hover:bg-ulco-700">Se connecter</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-ulco via-ulco-600 to-ulco-400"></div>
+        <div class="absolute -top-24 -right-24 h-72 w-72 bg-white/10 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-24 -left-24 h-72 w-72 bg-white/10 rounded-full blur-2xl"></div>
+        <div class="relative max-w-6xl mx-auto px-6 py-20 text-white">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs uppercase tracking-wide">Projet ULC’OCCAZ</span>
+                    <h1 class="text-4xl sm:text-5xl font-bold mt-4">Dons & troc pour la communauté ULCO</h1>
+                    <p class="mt-4 text-lg text-white/90">Donnez, échangez et réutilisez en toute confiance. Une plateforme moderne, sûre et locale pour nos campus.</p>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <a href="{{ path('app_login') }}" class="px-5 py-3 rounded-xl bg-white text-ulco font-semibold shadow-lg">Accéder à la plateforme</a>
+                        <a href="#features" class="px-5 py-3 rounded-xl border border-white/50 text-white font-semibold hover:bg-white/10">Découvrir</a>
+                    </div>
+                    <div class="mt-6 flex items-center gap-4 text-sm text-white/85">
+                        <div class="flex items-center gap-2"><span class="h-2 w-2 bg-emerald-400 rounded-full"></span>100% gratuit</div>
+                        <div class="flex items-center gap-2"><span class="h-2 w-2 bg-amber-300 rounded-full"></span>Modération campus</div>
+                    </div>
+                </div>
+                <div class="grid gap-4">
+                    <div class="rounded-2xl bg-white/15 p-5 backdrop-blur">
+                        <div class="font-semibold">Publier en 2 minutes</div>
+                        <p class="text-white/85 text-sm mt-1">Ajoutez photos, description et campus en quelques clics.</p>
+                    </div>
+                    <div class="rounded-2xl bg-white/15 p-5 backdrop-blur">
+                        <div class="font-semibold">Messagerie intégrée</div>
+                        <p class="text-white/85 text-sm mt-1">Discutez et organisez l’échange simplement.</p>
+                    </div>
+                    <div class="rounded-2xl bg-white/15 p-5 backdrop-blur">
+                        <div class="font-semibold">Confiance & sécurité</div>
+                        <p class="text-white/85 text-sm mt-1">Une modération dédiée par campus.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats -->
+    <section class="max-w-6xl mx-auto px-6 mt-10 relative z-10">
+        <div class="grid md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 text-center">
+                <div class="text-2xl font-bold text-ulco">4</div>
+                <div class="text-sm text-slate-500">Campus</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 text-center">
+                <div class="text-2xl font-bold text-ulco">100%</div>
+                <div class="text-sm text-slate-500">Gratuit</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 text-center">
+                <div class="text-2xl font-bold text-ulco">Sécurisé</div>
+                <div class="text-sm text-slate-500">Modération</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 text-center">
+                <div class="text-2xl font-bold text-ulco">Troc</div>
+                <div class="text-sm text-slate-500">ou Don</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="max-w-6xl mx-auto px-6 py-16">
+        <div class="max-w-2xl">
+            <h2 class="text-3xl font-bold text-ulco">Pourquoi ULC’OCCAZ ?</h2>
+            <p class="mt-3 text-slate-600">Une expérience fluide, alignée avec l’économie circulaire et les besoins des étudiants.</p>
+        </div>
+        <div class="mt-8 grid lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <div class="text-ulco font-semibold">Annonces rapides</div>
+                <p class="text-sm text-slate-600 mt-2">Publiez un objet en 2 minutes, avec photos et campus.</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <div class="text-ulco font-semibold">Messagerie intégrée</div>
+                <p class="text-sm text-slate-600 mt-2">Discutez directement avec les intéressés.</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <div class="text-ulco font-semibold">Modération campus</div>
+                <p class="text-sm text-slate-600 mt-2">Des modérateurs pour chaque campus.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Campus -->
+    <section id="campus" class="max-w-6xl mx-auto px-6 pb-16">
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+            <div class="grid md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-ulco">Campus ULCO</h3>
+                    <p class="text-slate-600 mt-2">Calais, Dunkerque, Boulogne, Saint‑Omer. Un réseau de confiance, proche de vous.</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <span class="px-3 py-1 rounded-full bg-ulco-50 text-ulco text-sm">Calais</span>
+                        <span class="px-3 py-1 rounded-full bg-ulco-50 text-ulco text-sm">Dunkerque</span>
+                        <span class="px-3 py-1 rounded-full bg-ulco-50 text-ulco text-sm">Boulogne</span>
+                        <span class="px-3 py-1 rounded-full bg-ulco-50 text-ulco text-sm">Saint‑Omer</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="rounded-2xl bg-ulco-50 p-5 text-ulco">
+                        <div class="text-sm">Échanges locaux</div>
+                        <div class="text-xl font-bold">100%</div>
+                    </div>
+                    <div class="rounded-2xl bg-ulco-50 p-5 text-ulco">
+                        <div class="text-sm">Disponibilité</div>
+                        <div class="text-xl font-bold">24/7</div>
+                    </div>
+                    <div class="rounded-2xl bg-ulco-50 p-5 text-ulco">
+                        <div class="text-sm">Confiance</div>
+                        <div class="text-xl font-bold">Modérée</div>
+                    </div>
+                    <div class="rounded-2xl bg-ulco-50 p-5 text-ulco">
+                        <div class="text-sm">Écologique</div>
+                        <div class="text-xl font-bold">Durable</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="max-w-6xl mx-auto px-6 pb-20">
+        <div class="bg-gradient-to-r from-ulco to-ulco-600 rounded-3xl p-8 text-white shadow-lg">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                    <h3 class="text-2xl font-bold">Prêt à rejoindre la communauté ?</h3>
+                    <p class="text-white/90 mt-2">Connectez-vous avec votre identifiant ULCO.</p>
+                </div>
+                <a href="{{ path('app_login') }}" class="px-6 py-3 rounded-xl bg-white text-ulco font-semibold shadow">Se connecter</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-ulco text-white/90">
+        <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between gap-2">
+            <div>© {{ "now"|date("Y") }} ULC’OCCAZ • Université du Littoral Côte d’Opale</div>
+            <div>Contact: ulcoccaz@univ-littoral.fr</div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
