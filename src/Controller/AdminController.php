@@ -11,8 +11,8 @@ class AdminController extends AbstractController
     #[Route('/admin/dashboard', name: 'app_admin_dashboard')]
     public function dashboard(): Response
     {
-        // Vérifier que l'utilisateur a ROLE_ADMIN ou ROLE_MODERATOR
-        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_MODERATOR')) {
+        // Dashboard accessible aux MODERATOR et RESPONSABLE
+        if (!$this->isGranted('ROLE_MODERATOR')) {
             throw $this->createAccessDeniedException('Accès refusé');
         }
         
@@ -22,7 +22,9 @@ class AdminController extends AbstractController
     #[Route('/admin/users', name: 'app_admin_users')]
     public function users(): Response
     {
-        if (!$this->isGranted('ROLE_ADMIN')) {
+        // MODERATOR et RESPONSABLE peuvent voir la liste des utilisateurs
+        // Seuls les RESPONSABLE peuvent modifier les rôles
+        if (!$this->isGranted('ROLE_MODERATOR')) {
             throw $this->createAccessDeniedException('Accès refusé');
         }
 
@@ -32,7 +34,8 @@ class AdminController extends AbstractController
     #[Route('/admin/moderation/annonce/{id}', name: 'app_admin_moderation_show')]
     public function moderationShow(string $id): Response
     {
-        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_MODERATOR')) {
+        // Modération d'annonces accessible aux MODERATOR et RESPONSABLE
+        if (!$this->isGranted('ROLE_MODERATOR')) {
             throw $this->createAccessDeniedException('Accès refusé');
         }
 

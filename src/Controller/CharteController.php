@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\CharteAgreement;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -20,6 +21,24 @@ class CharteController extends AbstractController
         }
 
         return $this->render('charte/index.html.twig');
+    }
+
+    #[Route('/charte/stepper', name: 'app_charte_stepper')]
+    public function stepper(): Response
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        
+        /** @var User $user */
+        // Si l'utilisateur a déjà accepté la charte, le rediriger vers l'accueil
+        if (!$user->getCharteAgreements()->isEmpty()) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('charte/stepper.html.twig');
     }
 
     #[Route('/charte/sign', name: 'app_charte_sign', methods: ['POST'])]

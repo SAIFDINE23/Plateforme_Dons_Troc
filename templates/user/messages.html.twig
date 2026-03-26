@@ -3,5 +3,9 @@
 {% block title %}Mes Messages - ULC'OCCAZ{% endblock %}
 
 {% block body %}
-    <div {{ react_component('ChatSystem') }}></div>
+    <div {{ react_component('Messenger', {
+        conversationId: conversationId,
+        currentUserId: currentUserId,
+        mercureUrl: mercureUrl
+    }) }}></div>
 {% endblock %}

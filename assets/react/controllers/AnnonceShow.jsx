@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    MapPin, Tag, Calendar, User, Mail, Edit, Trash2, 
+    MapPin, Tag, Calendar, User, Edit, Trash2, 
     CheckCircle, MessageCircle, ArrowLeft, Gift, Repeat,
-    ShieldCheck, AlertCircle, Heart
+    ShieldCheck, AlertCircle
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import toast, { Toaster } from 'react-hot-toast';
@@ -15,6 +15,7 @@ export default function AnnonceShow({ id }) {
     const [deleting, setDeleting] = useState(false);
     const [finishing, setFinishing] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     // Charger les détails de l'annonce
     useEffect(() => {
@@ -32,6 +33,7 @@ export default function AnnonceShow({ id }) {
                 console.log('AnnonceShow: Owner =', data.owner);
                 setAnnonce(data);
                 setIsFavorite(!!data.isFavorite);
+                setCurrentImageIndex(0);
                 setLoading(false);
             })
             .catch(err => {
@@ -91,30 +93,24 @@ export default function AnnonceShow({ id }) {
         }
     };
 
-    // Contacter (placeholder pour maintenant)
     const handleContact = async () => {
-        const content = window.prompt('Votre premier message :');
-        if (!content || !content.trim()) {
-            return;
-        }
-
         try {
-            const response = await fetch('/api/conversations/new', {
+            const response = await fetch(`/api/annonces/${id}/conversation`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ annonceId: id, content: content.trim() }),
             });
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
-                throw new Error(data.error || 'Erreur lors de l\'envoi du message');
+                throw new Error(data.error || 'Erreur lors de la création de la conversation');
             }
 
             const data = await response.json();
             const conversationId = data.conversationId;
-            window.location.href = conversationId
-                ? `/messages?conversation=${conversationId}`
-                : '/messages';
+            if (conversationId) {
+                window.location.href = `/mes-messages/${conversationId}`;
+            } else {
+                window.location.href = '/mes-messages';
+            }
         } catch (err) {
             alert('❌ Erreur: ' + err.message);
         }
@@ -184,6 +180,7 @@ export default function AnnonceShow({ id }) {
         campus,
         categoryName,
         image,
+        images,
         owner,
         isOwner,
         state,
@@ -191,6 +188,21 @@ export default function AnnonceShow({ id }) {
     } = annonce;
 
     const isCompleted = state === 'COMPLETED';
+    const getStatusBadge = (currentState) => {
+        const badges = {
+            PUBLISHED: { label: 'Publiée', class: 'status-published' },
+            PENDING: { label: 'En attente', class: 'status-pending' },
+            PENDING_REVIEW: { label: 'En attente de validation', class: 'status-pending' },
+            REJECTED: { label: 'Rejetée', class: 'status-rejected' },
+            COMPLETED: { label: 'Terminée', class: 'status-completed' },
+            DRAFT: { label: 'Brouillon', class: 'status-draft' },
+            ARCHIVED: { label: 'Archivée', class: 'status-archived' }
+        };
+
+        return badges[currentState] || { label: currentState || 'Inconnu', class: 'status-pending' };
+    };
+
+    const status = getStatusBadge(state);
     const campusLabels = {
         CALAIS: 'Calais',
         DUNKERQUE: 'Dunkerque',
@@ -230,13 +242,37 @@ export default function AnnonceShow({ id }) {
                 >
                     <div className="position-relative overflow-hidden">
                         <motion.img
-                            src={image || 'https://via.placeholder.com/600x600/004E86/FFFFFF?text=Pas+d\'image'}
+                            src={(images && images.length > 0 ? images[currentImageIndex] : image) || 'https://via.placeholder.com/600x600/004E86/FFFFFF?text=Pas+d\'image'}
                             alt={title}
                             className="card-img-top"
                             style={{ height: '500px', objectFit: 'cover', cursor: 'pointer' }}
                             whileHover={{ scale: 1.05 }}
                             transition={{ duration: 0.3 }}
                         />
+
+                        {images && images.length > 1 && (
+                            <>
+                                <button
+                                    type="button"
+                                    className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-3"
+                                    onClick={() => setCurrentImageIndex((currentImageIndex - 1 + images.length) % images.length)}
+                                    style={{ width: '40px', height: '40px', padding: 0, opacity: 0.85 }}
+                                >
+                                    <i className="bi bi-chevron-left"></i>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-3"
+                                    onClick={() => setCurrentImageIndex((currentImageIndex + 1) % images.length)}
+                                    style={{ width: '40px', height: '40px', padding: 0, opacity: 0.85 }}
+                                >
+                                    <i className="bi bi-chevron-right"></i>
+                                </button>
+                                <div className="position-absolute bottom-0 start-50 translate-middle-x mb-3">
+                                    <span className="badge bg-dark">{currentImageIndex + 1} / {images.length}</span>
+                                </div>
+                            </>
+                        )}
                         
                         {/* Badge Type (Don/Troc) */}
                         <div className="position-absolute top-0 end-0 m-3">
@@ -252,6 +288,12 @@ export default function AnnonceShow({ id }) {
                                     <><Repeat size={18} className="me-1" /> Troc</>
                                 )}
                             </motion.span>
+                        </div>
+
+                        <div className="position-absolute top-0 start-0 m-3">
+                            <span className={`status-badge ${status.class}`}>
+                                {status.label}
+                            </span>
                         </div>
                     </div>
                     
@@ -285,16 +327,12 @@ export default function AnnonceShow({ id }) {
                     <h1 className="mb-0">{title}</h1>
                     <button
                         type="button"
-                        className="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                        className={`btn rounded-circle shadow-sm d-flex align-items-center justify-content-center favorite-toggle-btn ${isFavorite ? 'is-favorite' : ''}`}
                         onClick={handleToggleFavorite}
                         aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                        style={{ width: '44px', height: '44px', backgroundColor: '#ffffff' }}
+                        title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                     >
-                        <Heart
-                            size={20}
-                            style={{ color: isFavorite ? '#F07D00' : '#6c757d' }}
-                            fill={isFavorite ? '#F07D00' : 'none'}
-                        />
+                        <i className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-toggle-icon`}></i>
                     </button>
                 </motion.div>
 
@@ -360,12 +398,6 @@ export default function AnnonceShow({ id }) {
                                 <User size={18} className="text-muted" />
                                 <strong>{owner.username}</strong>
                             </div>
-                            {owner.email && (
-                                <div className="d-flex align-items-center gap-2 text-muted small">
-                                    <Mail size={16} />
-                                    <span>{owner.email}</span>
-                                </div>
-                            )}
                         </div>
                     </motion.div>
                 )}
@@ -445,7 +477,7 @@ export default function AnnonceShow({ id }) {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
                     >
-                        {!isCompleted ? (
+                        {!isCompleted && !isOwner ? (
                             <motion.button
                                 className="btn btn-primary btn-pill btn-lg d-flex align-items-center justify-content-center gap-2"
                                 onClick={handleContact}
@@ -453,14 +485,14 @@ export default function AnnonceShow({ id }) {
                                 whileTap={{ scale: 0.97 }}
                             >
                                 <MessageCircle size={20} />
-                                <span>Contacter le donneur / Proposer un troc</span>
+                                <span>Contacter le donneur</span>
                             </motion.button>
-                        ) : (
+                        ) : isCompleted ? (
                             <div className="alert alert-info border-0 shadow-sm text-center mb-0 d-flex align-items-center justify-content-center gap-2">
                                 <AlertCircle size={20} />
                                 <span>Cet objet n'est plus disponible</span>
                             </div>
-                        )}
+                        ) : null}
 
                         <a href="/" className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2">
                             <ArrowLeft size={18} />

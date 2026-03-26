@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AnnonceRepository::class)]
 class Annonce
@@ -23,6 +24,11 @@ class Annonce
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères'
+    )]
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', enumType: AnnonceType::class)]
@@ -31,8 +37,16 @@ class Annonce
     #[ORM\Column(type: 'string', enumType: AnnonceState::class)]
     private ?AnnonceState $state = null;
 
-    #[ORM\Column(type: 'string', enumType: Campus::class)]
-    private ?Campus $campus = null;
+    /**
+     * @var array<string>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    #[Assert\NotBlank(message: 'Au moins un campus doit être sélectionné')]
+    #[Assert\Count(
+        min: 1,
+        minMessage: 'Au moins un campus doit être sélectionné'
+    )]
+    private array $campuses = [];
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $expiresAt = null;
@@ -49,6 +63,10 @@ class Annonce
      * @var Collection<int, AnnonceImage>
      */
     #[ORM\OneToMany(targetEntity: AnnonceImage::class, mappedBy: 'annonce', orphanRemoval: true, cascade: ['persist'])]
+    #[Assert\Count(
+        max: 6,
+        maxMessage: 'Vous ne pouvez pas ajouter plus de {{ limit }} images'
+    )]
     private Collection $images;
 
     /**
@@ -65,6 +83,16 @@ class Annonce
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $refusalReason = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $lockedBy = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lockedAt = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $customCategoryName = null;
 
     public function __construct()
     {
@@ -124,14 +152,40 @@ class Annonce
         return $this;
     }
 
-    public function getCampus(): ?Campus
+    /**
+     * @return array<string>
+     */
+    public function getCampuses(): array
     {
-        return $this->campus;
+        return $this->campuses;
     }
 
-    public function setCampus(Campus $campus): static
+    /**
+     * @param array<string> $campuses
+     */
+    public function setCampuses(array $campuses): static
     {
-        $this->campus = $campus;
+        $this->campuses = $campuses;
+        return $this;
+    }
+
+    /**
+     * Add a campus to the list
+     */
+    public function addCampus(string $campus): static
+    {
+        if (!in_array($campus, $this->campuses)) {
+            $this->campuses[] = $campus;
+        }
+        return $this;
+    }
+
+    /**
+     * Remove a campus from the list
+     */
+    public function removeCampus(string $campus): static
+    {
+        $this->campuses = array_filter($this->campuses, fn($c) => $c !== $campus);
         return $this;
     }
 
@@ -262,6 +316,89 @@ class Annonce
     {
         $this->refusalReason = $refusalReason;
 
+        return $this;
+    }
+
+    public function getLockedBy(): ?User
+    {
+        return $this->lockedBy;
+    }
+
+    public function setLockedBy(?User $lockedBy): static
+    {
+        $this->lockedBy = $lockedBy;
+        return $this;
+    }
+
+    public function getLockedAt(): ?\DateTimeImmutable
+    {
+        return $this->lockedAt;
+    }
+
+    public function setLockedAt(?\DateTimeImmutable $lockedAt): static
+    {
+        $this->lockedAt = $lockedAt;
+        return $this;
+    }
+
+    /**
+     * Vérifie si l'annonce est verrouillée
+     */
+    public function isLocked(): bool
+    {
+        return $this->lockedBy !== null && $this->lockedAt !== null;
+    }
+
+    /**
+     * Vérifie si l'annonce est verrouillée par un utilisateur spécifique
+     */
+    public function isLockedBy(User $user): bool
+    {
+        return $this->lockedBy !== null && $this->lockedBy->getId()->equals($user->getId());
+    }
+
+    /**
+     * Vérifie si le verrou a expiré (plus de 30 minutes)
+     */
+    public function isLockExpired(): bool
+    {
+        if (!$this->isLocked()) {
+            return false;
+        }
+
+        $now = new \DateTimeImmutable();
+        $lockDuration = $now->getTimestamp() - $this->lockedAt->getTimestamp();
+        
+        // 30 minutes = 1800 secondes
+        return $lockDuration > 1800;
+    }
+
+    /**
+     * Verrouille l'annonce pour un utilisateur
+     */
+    public function lock(User $user): void
+    {
+        $this->lockedBy = $user;
+        $this->lockedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * Déverrouille l'annonce
+     */
+    public function unlock(): void
+    {
+        $this->lockedBy = null;
+        $this->lockedAt = null;
+    }
+
+    public function getCustomCategoryName(): ?string
+    {
+        return $this->customCategoryName;
+    }
+
+    public function setCustomCategoryName(?string $customCategoryName): static
+    {
+        $this->customCategoryName = $customCategoryName;
         return $this;
     }
 }

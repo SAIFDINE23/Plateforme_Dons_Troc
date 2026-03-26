@@ -9,6 +9,13 @@
         Gestion des utilisateurs
     </h1>
 
-    <div {{ react_component('UserManager') }}></div>
+    {% if is_granted('ROLE_MODERATOR') and not is_granted('ROLE_RESPONSABLE') %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Modérateur :</strong> Vous pouvez voir la liste des utilisateurs et les bannir/débannir. Seuls les responsables peuvent modifier les rôles.
+        </div>
+    {% endif %}
+
+    <div data-current-user-roles='{{ app.user.roles|json_encode|raw }}' {{ react_component('UserManager') }}></div>
 </div>
 {% endblock %}

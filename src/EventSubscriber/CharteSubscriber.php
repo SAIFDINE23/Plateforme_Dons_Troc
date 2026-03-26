@@ -34,9 +34,18 @@ class CharteSubscriber implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
-        $route = $request->attributes->get('_route');
+        $route = (string) $request->attributes->get('_route', '');
+        if ($route === '') {
+            return;
+        }
 
-        if (in_array($route, ['app_charte', 'app_charte_sign', 'app_logout'], true)) {
+        // Ignorer les routes publiques/système
+        if (in_array($route, ['app_login', 'app_logout', 'app_user_alias_setup', 'app_charte', 'app_charte_sign', 'app_charte_stepper'], true)) {
+            return;
+        }
+
+        // Ignorer toutes les routes API et techniques (_wdt, _profiler...)
+        if (str_starts_with($route, 'api_') || str_starts_with($route, '_')) {
             return;
         }
 
@@ -45,12 +54,19 @@ class CharteSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Obliger un alias unique au premier login
+        if ($user->getAlias() === null || trim($user->getAlias()) === '') {
+            $url = $this->urlGenerator->generate('app_user_alias_setup');
+            $event->setResponse(new RedirectResponse($url));
+            return;
+        }
+
         $hasSigned = $this->charteAgreementRepository->count(['user' => $user]) > 0;
         if ($hasSigned) {
             return;
         }
 
-        $url = $this->urlGenerator->generate('app_charte');
+        $url = $this->urlGenerator->generate('app_charte_stepper');
         $event->setResponse(new RedirectResponse($url));
     }
 }

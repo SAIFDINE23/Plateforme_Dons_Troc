@@ -3,7 +3,6 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
-use App\Enum\Campus;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,12 +13,15 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_ADMIN')]
 class AdminUserApiController extends AbstractController
 {
     #[Route('/api/admin/users', name: 'api_admin_users', methods: ['GET'])]
     public function listUsers(UserRepository $userRepository): JsonResponse
     {
+        // MODERATOR et RESPONSABLE peuvent lister les utilisateurs
+        if (!$this->isGranted('ROLE_MODERATOR')) {
+            return $this->json(['error' => 'Accès refusé.'], 403);
+        }
         $users = $userRepository->findAll();
 
         $data = array_map(static function (User $user): array {
@@ -28,7 +30,6 @@ class AdminUserApiController extends AbstractController
                 'cas_uid' => $user->getCasUid(),
                 'email' => $user->getEmail(),
                 'roles' => $user->getRoles(),
-                'moderated_campus' => $user->getModeratedCampus()?->value,
                 'is_banned' => $user->isBanned(),
                 'created_at' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
             ];
@@ -44,46 +45,35 @@ class AdminUserApiController extends AbstractController
         UserRepository $userRepository,
         EntityManagerInterface $em
     ): JsonResponse {
+        // Seuls les RESPONSABLE peuvent changer les rôles des utilisateurs
+        if (!$this->isGranted('ROLE_RESPONSABLE')) {
+            return $this->json(['error' => 'Accès refusé. Seuls les responsables peuvent modifier les rôles.'], 403);
+        }
+
         $user = $userRepository->find($id);
         if (!$user) {
             return $this->json(['error' => 'Utilisateur introuvable.'], 404);
         }
 
+        // Ne pas permettre de modifier un autre RESPONSABLE
+        if (in_array('ROLE_RESPONSABLE', $user->getRoles(), true)) {
+            return $this->json(['error' => 'Impossible de modifier un responsable.'], 403);
+        }
+
         $payload = json_decode($request->getContent(), true) ?? [];
         $role = $payload['role'] ?? null;
-        $campusValue = $payload['campus'] ?? null;
 
         if (!in_array($role, ['USER', 'MODERATOR'], true)) {
             return $this->json(['error' => 'Rôle invalide.'], 400);
         }
 
-        $roles = $user->getRoles();
-
-        if ($role === 'USER') {
-            $roles = array_values(array_diff($roles, ['ROLE_MODERATOR']));
-            $user->setModeratedCampus(null);
-        }
+        $roles = ['ROLE_USER']; // Toujours commencer avec ROLE_USER
 
         if ($role === 'MODERATOR') {
-            if (!$campusValue) {
-                return $this->json(['error' => 'Campus requis pour un modérateur.'], 400);
-            }
-
-            try {
-                $campus = Campus::from($campusValue);
-            } catch (\ValueError $e) {
-                return $this->json(['error' => 'Campus invalide.'], 400);
-            }
-
-            if (!in_array('ROLE_MODERATOR', $roles, true)) {
-                $roles[] = 'ROLE_MODERATOR';
-            }
-
-            $user->setModeratedCampus($campus);
+            // Les modérateurs peuvent gérer tous les campus
+            $roles[] = 'ROLE_MODERATOR';
         }
 
-        // Ne jamais toucher au ROLE_ADMIN via cette API
-        $roles = array_values(array_unique($roles));
         $user->setRoles($roles);
 
         $em->flush();
@@ -93,7 +83,6 @@ class AdminUserApiController extends AbstractController
             'cas_uid' => $user->getCasUid(),
             'email' => $user->getEmail(),
             'roles' => $user->getRoles(),
-            'moderated_campus' => $user->getModeratedCampus()?->value,
             'is_banned' => $user->isBanned(),
             'created_at' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
         ]);
@@ -107,6 +96,11 @@ class AdminUserApiController extends AbstractController
         EntityManagerInterface $em,
         MailerInterface $mailer
     ): JsonResponse {
+        // MODERATOR et RESPONSABLE peuvent bannir/débannir des utilisateurs
+        if (!$this->isGranted('ROLE_MODERATOR')) {
+            return $this->json(['error' => 'Accès refusé.'], 403);
+        }
+
         $currentUser = $this->getUser();
         if ($currentUser instanceof User && $currentUser->getId()?->toRfc4122() === $id) {
             return $this->json(['error' => 'Vous ne pouvez pas vous bannir vous-même.'], 400);
@@ -115,6 +109,11 @@ class AdminUserApiController extends AbstractController
         $user = $userRepository->find($id);
         if (!$user) {
             return $this->json(['error' => 'Utilisateur introuvable.'], 404);
+        }
+
+        // Empêcher le bannissement des modérateurs et responsables
+        if (in_array('ROLE_MODERATOR', $user->getRoles(), true) || in_array('ROLE_RESPONSABLE', $user->getRoles(), true)) {
+            return $this->json(['error' => 'Les modérateurs et responsables ne peuvent pas être bannis.'], 403);
         }
 
         $willBeBanned = !$user->isBanned();
@@ -169,7 +168,6 @@ class AdminUserApiController extends AbstractController
             'cas_uid' => $user->getCasUid(),
             'email' => $user->getEmail(),
             'roles' => $user->getRoles(),
-            'moderated_campus' => $user->getModeratedCampus()?->value,
             'is_banned' => $user->isBanned(),
             'created_at' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
         ]);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, BellRing, CheckCircle, XCircle, MessageCircle } from 'lucide-react';
+import { Bell, BellRing, CheckCircle, XCircle } from 'lucide-react';
 
 export default function NotificationBell() {
     const [notifications, setNotifications] = useState([]);
@@ -14,15 +14,16 @@ export default function NotificationBell() {
             if (!response.ok) return;
             const data = await response.json();
             const notifArray = Array.isArray(data) ? data : [];
+            const managementNotifications = notifArray.filter((notification) => notification.type !== 'NEW_MESSAGE');
             
             // Détecter nouvelle notification pour animation
-            if (notifArray.length > prevCountRef.current) {
+            if (managementNotifications.length > prevCountRef.current) {
                 setHasNewNotification(true);
                 setTimeout(() => setHasNewNotification(false), 2000);
             }
             
-            prevCountRef.current = notifArray.length;
-            setNotifications(notifArray);
+            prevCountRef.current = managementNotifications.length;
+            setNotifications(managementNotifications);
         } catch {
             // ignore
         }
@@ -74,8 +75,6 @@ export default function NotificationBell() {
                 return <CheckCircle size={18} className="text-success" />;
             case 'REFUSAL':
                 return <XCircle size={18} className="text-danger" />;
-            case 'NEW_MESSAGE':
-                return <MessageCircle size={18} className="text-info" />;
             default:
                 return <Bell size={18} />;
         }

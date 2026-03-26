@@ -176,9 +176,15 @@ export default function ModerationDashboard() {
                                                 </small>
                                             </td>
                                             <td>
-                                                <span className="badge bg-info">
-                                                    📍 {annonce.campus}
-                                                </span>
+                                                {annonce.campuses && annonce.campuses.length > 0 ? (
+                                                    annonce.campuses.map((campus, idx) => (
+                                                        <span key={idx} className="badge bg-info me-1 mb-1">
+                                                            📍 {campus}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="badge bg-secondary">Non spécifié</span>
+                                                )}
                                             </td>
                                             <td>
                                                 <strong>{annonce.title}</strong>
@@ -195,40 +201,14 @@ export default function ModerationDashboard() {
                                                 </small>
                                             </td>
                                             <td className="text-center">
-                                                <div className="d-flex flex-wrap gap-2 justify-content-center">
-                                                    <a
-                                                        className="btn btn-sm btn-outline-primary"
-                                                        href={`/admin/moderation/annonce/${annonce.id}`}
-                                                        title="Voir les détails"
-                                                    >
-                                                        <i className="bi bi-eye me-1"></i>
-                                                        Voir détails
-                                                    </a>
-                                                    <button
-                                                        className="btn btn-sm btn-success"
-                                                        onClick={() => handleValidate(annonce.id)}
-                                                        disabled={processingId === annonce.id}
-                                                        title="Valider cette annonce"
-                                                    >
-                                                        {processingId === annonce.id ? (
-                                                            <span className="spinner-border spinner-border-sm" />
-                                                        ) : (
-                                                            <>
-                                                                <i className="bi bi-check-circle me-1"></i>
-                                                                Valider
-                                                            </>
-                                                        )}
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-danger"
-                                                        onClick={() => openRejectModal(annonce)}
-                                                        disabled={processingId === annonce.id}
-                                                        title="Refuser cette annonce"
-                                                    >
-                                                        <i className="bi bi-x-circle me-1"></i>
-                                                        Refuser
-                                                    </button>
-                                                </div>
+                                                <a
+                                                    className="btn btn-sm btn-primary"
+                                                    href={`/admin/moderation/annonce/${annonce.id}`}
+                                                    title="Voir les détails et modérer"
+                                                >
+                                                    <i className="bi bi-eye me-1"></i>
+                                                    Voir détails
+                                                </a>
                                             </td>
                                         </tr>
                                     ))}

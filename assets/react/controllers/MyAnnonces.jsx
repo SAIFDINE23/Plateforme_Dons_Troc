@@ -1,6 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
+const AnnonceCarousel = ({ images, title }) => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    useEffect(() => {
+        setCurrentImageIndex(0);
+    }, [images]);
+
+    if (!images || images.length === 0) {
+        return null;
+    }
+
+    return (
+        <div className="position-relative">
+            <img
+                src={images[currentImageIndex]}
+                className="card-img-top"
+                alt={title}
+                style={{ height: '200px', objectFit: 'cover' }}
+            />
+            {images.length > 1 && (
+                <>
+                    <button
+                        type="button"
+                        className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-2"
+                        onClick={() => setCurrentImageIndex((currentImageIndex - 1 + images.length) % images.length)}
+                        style={{ width: '32px', height: '32px', padding: 0, opacity: 0.85 }}
+                    >
+                        <i className="bi bi-chevron-left"></i>
+                    </button>
+                    <button
+                        type="button"
+                        className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-2"
+                        onClick={() => setCurrentImageIndex((currentImageIndex + 1) % images.length)}
+                        style={{ width: '32px', height: '32px', padding: 0, opacity: 0.85 }}
+                    >
+                        <i className="bi bi-chevron-right"></i>
+                    </button>
+                    <div className="position-absolute bottom-0 start-50 translate-middle-x mb-2">
+                        <span className="badge bg-dark">{currentImageIndex + 1} / {images.length}</span>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
 export default function MyAnnonces() {
     const [annonces, setAnnonces] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -85,14 +131,10 @@ export default function MyAnnonces() {
                     {annonces.map((annonce) => (
                         <div key={annonce.id} className="col-md-6 col-lg-4 mb-4">
                             <div className="card h-100 shadow-sm border-0">
-                                {annonce.image && (
-                                    <img
-                                        src={annonce.image}
-                                        className="card-img-top"
-                                        alt={annonce.title}
-                                        style={{ height: '200px', objectFit: 'cover' }}
-                                    />
-                                )}
+                                <AnnonceCarousel
+                                    images={annonce.images?.length ? annonce.images : (annonce.image ? [annonce.image] : [])}
+                                    title={annonce.title}
+                                />
                                 <div className="card-body d-flex flex-column">
                                     <div className="mb-2">
                                         <span className={getStatusBadgeClass(annonce.status)}>

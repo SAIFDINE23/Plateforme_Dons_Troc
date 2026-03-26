@@ -55,11 +55,13 @@ class FavoriteApiController extends AbstractController
         $data = [];
 
         foreach ($favorites as $annonce) {
-            $image = null;
+            $images = [];
             if ($annonce->getImages()->count() > 0) {
-                $firstImage = $annonce->getImages()->first();
-                $image = '/uploads/annonces/' . $firstImage->getImageName();
+                foreach ($annonce->getImages() as $annonceImage) {
+                    $images[] = '/uploads/annonces/' . $annonceImage->getImageName();
+                }
             }
+            $image = $images[0] ?? null;
 
             $price = $annonce->getType()->value === 'DON' ? 'Gratuit' : 'Troc';
 
@@ -73,13 +75,14 @@ class FavoriteApiController extends AbstractController
                 'title' => mb_convert_encoding($annonce->getTitle(), 'UTF-8', 'UTF-8'),
                 'description' => mb_convert_encoding($description, 'UTF-8', 'UTF-8'),
                 'price' => $price,
-                'campus' => $annonce->getCampus()->value,
+                'campuses' => $annonce->getCampuses(),
                 'category' => $annonce->getCategory() ? [
                     'id' => $annonce->getCategory()->getId(),
                     'name' => mb_convert_encoding($annonce->getCategory()->getName(), 'UTF-8', 'UTF-8')
                 ] : null,
                 'owner' => $annonce->getOwner()->getCasUid(),
                 'image' => $image,
+                'images' => $images,
                 'photoFilename' => $annonce->getImages()->count() > 0 ? $annonce->getImages()->first()->getImageName() : null,
                 'date' => $annonce->getCreatedAt() ? $annonce->getCreatedAt()->format('d/m/Y') : null,
                 'createdAt' => $annonce->getCreatedAt() ? $annonce->getCreatedAt()->format('Y-m-d H:i:s') : null,

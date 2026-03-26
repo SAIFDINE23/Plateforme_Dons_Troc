@@ -1,16 +1,37 @@
 {% extends "base.html.twig" %}
 
-{% block title %}Espace de Modération - ULC'OCCAZ{% endblock %}
+{% block title %}
+    {% if is_granted('ROLE_RESPONSABLE') %}
+        Administration - ULC'OCCAZ
+    {% else %}
+        Espace de Modération - ULC'OCCAZ
+    {% endif %}
+{% endblock %}
 
 {% block body %}
     <div class="container my-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h4 mb-0">Espace de Modération</h1>
-            <a href="{{ path('app_admin_users') }}" class="btn btn-outline-dark">
-                <i class="bi bi-people-fill me-1"></i>
-                Gestion des utilisateurs
-            </a>
+            <h1 class="h4 mb-0">
+                {% if is_granted('ROLE_RESPONSABLE') %}
+                    <i class="bi bi-gear-fill me-2"></i>Administration
+                {% else %}
+                    <i class="bi bi-shield-check me-2"></i>Espace de Modération
+                {% endif %}
+            </h1>
+            {% if is_granted('ROLE_MODERATOR') %}
+                <a href="{{ path('app_admin_users') }}" class="btn btn-outline-dark">
+                    <i class="bi bi-people-fill me-1"></i>
+                    Gestion des utilisateurs
+                </a>
+            {% endif %}
         </div>
+        
+        {% if not is_granted('ROLE_RESPONSABLE') %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Modérateur :</strong> Vous pouvez modérer les annonces de tous les campus et gérer les bannissements.
+            </div>
+        {% endif %}
     </div>
 
     <div {{ react_component('ModerationDashboard') }}></div>

@@ -65,18 +65,11 @@ class AnnonceApiController extends AbstractController
                 ->setParameter('states', ['PUBLISHED', 'COMPLETED']);
         }
 
-        // Filtre optionnel : Campus
-        $campus = $request->query->get('campus');
-        if ($campus && $campus !== 'ALL') {
-            $qb->andWhere('a.campus = :campus')
-                ->setParameter('campus', $campus);
-        }
-
-        // Filtre optionnel : Catégorie
+        // Filtre optionnel : Catégorie (en DQL, fonctionne avec PostgreSQL)
         $categoryId = $request->query->get('category');
         if ($categoryId) {
             $qb->andWhere('c.id = :categoryId')
-                ->setParameter('categoryId', $categoryId);
+                ->setParameter('categoryId', (int) $categoryId);
         }
 
         // Filtre optionnel : Recherche texte
@@ -93,6 +86,16 @@ class AnnonceApiController extends AbstractController
         // Exécuter la requête
         $annonces = $qb->getQuery()->getResult();
 
+        // Filtre optionnel : Campus (filtrage PHP car campuses est un champ JSON
+        // et PostgreSQL ne supporte pas LIKE sur les colonnes json en DQL)
+        $campus = $request->query->get('campus');
+        if ($campus && $campus !== 'ALL') {
+            $annonces = array_filter($annonces, function (Annonce $annonce) use ($campus): bool {
+                return in_array($campus, $annonce->getCampuses(), true);
+            });
+            $annonces = array_values($annonces);
+        }
+
         $favoriteIds = [];
         if ($currentUser instanceof User) {
             foreach ($currentUser->getFavorites() as $favorite) {
@@ -103,12 +106,14 @@ class AnnonceApiController extends AbstractController
         // Formater les données pour la réponse JSON
         $data = [];
         foreach ($annonces as $annonce) {
-            // Récupérer la première image si elle existe
-            $image = null;
+            // Récupérer les images
+            $images = [];
             if ($annonce->getImages()->count() > 0) {
-                $firstImage = $annonce->getImages()->first();
-                $image = '/uploads/annonces/' . $firstImage->getImageName();
+                foreach ($annonce->getImages() as $annonceImage) {
+                    $images[] = '/uploads/annonces/' . $annonceImage->getImageName();
+                }
             }
+            $image = $images[0] ?? null;
 
             // Déterminer le prix/type
             $price = $annonce->getType()->value === 'DON' ? 'Gratuit' : 'Troc';
@@ -124,13 +129,14 @@ class AnnonceApiController extends AbstractController
                 'title' => mb_convert_encoding($annonce->getTitle(), 'UTF-8', 'UTF-8'),
                 'description' => mb_convert_encoding($description, 'UTF-8', 'UTF-8'),
                 'price' => $price,
-                'campus' => $annonce->getCampus()->value,
+                'campuses' => $annonce->getCampuses(),
                 'category' => $annonce->getCategory() ? [
                     'id' => $annonce->getCategory()->getId(),
                     'name' => mb_convert_encoding($annonce->getCategory()->getName(), 'UTF-8', 'UTF-8')
                 ] : null,
                 'owner' => $annonce->getOwner()->getCasUid(),
                 'image' => $image,
+                'images' => $images,
                 'photoFilename' => $annonce->getImages()->count() > 0 ? $annonce->getImages()->first()->getImageName() : null,
                 'date' => $annonce->getCreatedAt() ? $annonce->getCreatedAt()->format('d/m/Y') : null,
                 'createdAt' => $annonce->getCreatedAt() ? $annonce->getCreatedAt()->format('Y-m-d H:i:s') : null,
@@ -180,12 +186,14 @@ class AnnonceApiController extends AbstractController
             $isOwner = ($currentUserId === $ownerId);
         }
 
-        // Récupérer l'image principale
-        $image = null;
+        // Récupérer les images
+        $images = [];
         if ($annonce->getImages()->count() > 0) {
-            $firstImage = $annonce->getImages()->first();
-            $image = '/uploads/annonces/' . $firstImage->getImageName();
+            foreach ($annonce->getImages() as $annonceImage) {
+                $images[] = '/uploads/annonces/' . $annonceImage->getImageName();
+            }
         }
+        $image = $images[0] ?? null;
 
         // Déterminer le prix/type d'affichage
         $displayPrice = $annonce->getType()->value === 'DON' ? 'Gratuit' : 'Troc';
@@ -210,13 +218,14 @@ class AnnonceApiController extends AbstractController
             'id' => $annonce->getId()->toRfc4122(),
             'title' => $annonce->getTitle(),
             'description' => $annonce->getDescription(),
-            'campus' => $annonce->getCampus()->value,
+            'campuses' => $annonce->getCampuses(),
             'type' => $annonce->getType()->value,
             'price' => $displayPrice,
             'categoryId' => $annonce->getCategory()?->getId(),
             'categoryName' => $annonce->getCategory()?->getName(),
             'state' => $annonce->getState()->value,
             'image' => $image,
+            'images' => $images,
             'owner' => $ownerData,
             'createdAt' => $annonce->getCreatedAt()?->format('Y-m-d H:i:s'),
             'isOwner' => $isOwner,
@@ -337,13 +346,22 @@ class AnnonceApiController extends AbstractController
         // Récupération des données du formulaire
         $title = $request->request->get('title');
         $description = $request->request->get('description');
-        $campusValue = $request->request->get('campus');
+        $campusesJson = $request->request->get('campuses');
         $typeValue = $request->request->get('type');
         $categoryId = $request->request->get('categoryId');
         $imageFile = $request->files->get('image'); // Optionnel
+        
+        // Décoder les campus (tableau JSON)
+        $campusesArray = [];
+        if ($campusesJson) {
+            $decoded = json_decode($campusesJson, true);
+            if (is_array($decoded)) {
+                $campusesArray = $decoded;
+            }
+        }
 
         // Validation de base
-        if (!$title || !$description || !$campusValue || !$typeValue || !$categoryId) {
+        if (!$title || !$description || empty($campusesArray) || !$typeValue || !$categoryId) {
             return $this->json([
                 'error' => 'Tous les champs obligatoires doivent être remplis.'
             ], 400);
@@ -353,10 +371,10 @@ class AnnonceApiController extends AbstractController
         if ($imageFile) {
             $violations = $validator->validate($imageFile, [
                 new Assert\File([
-                    'maxSize' => '2M',
+                    'maxSize' => '1M',
                     'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
                     'mimeTypesMessage' => 'Formats acceptés : JPG, PNG, WEBP',
-                    'maxSizeMessage' => 'L\'image ne doit pas dépasser 2 Mo'
+                    'maxSizeMessage' => 'L\'image ne doit pas dépasser 1 Mo'
                 ])
             ]);
 
@@ -370,10 +388,22 @@ class AnnonceApiController extends AbstractController
                 ], 400);
             }
         }
-
-        // Conversion des enums
+        
+        // Valider les campus et convertir les valeurs
+        $validatedCampuses = [];
+        foreach ($campusesArray as $campusValue) {
+            try {
+                Campus::from($campusValue);
+                $validatedCampuses[] = $campusValue;
+            } catch (\ValueError $e) {
+                return $this->json([
+                    'error' => "Campus invalide : {$campusValue}"
+                ], 400);
+            }
+        }
+        
+        // Conversion du type
         try {
-            $campus = Campus::from($campusValue);
             $type = AnnonceType::from($typeValue);
         } catch (\ValueError $e) {
             return $this->json([
@@ -392,7 +422,7 @@ class AnnonceApiController extends AbstractController
         // Mise à jour des propriétés texte
         $annonce->setTitle($title);
         $annonce->setDescription($description);
-        $annonce->setCampus($campus);
+        $annonce->setCampuses($validatedCampuses);
         $annonce->setType($type);
         $annonce->setCategory($category);
 

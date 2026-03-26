@@ -1,4 +1,9 @@
 security:
+    # Hiérarchie des rôles
+    role_hierarchy:
+        ROLE_MODERATOR: ROLE_USER
+        ROLE_RESPONSABLE: [ROLE_MODERATOR, ROLE_USER]
+
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 

@@ -6,10 +6,65 @@ export default function ModerationAnnonceShow({ id }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [processing, setProcessing] = useState(false);
+    
+    // État du verrouillage
+    const [lockStatus, setLockStatus] = useState(null);
+    const [lockError, setLockError] = useState('');
+    const [isLocked, setIsLocked] = useState(false);
 
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [refusalReason, setRefusalReason] = useState('');
     const [reasonError, setReasonError] = useState('');
+    
+    // État pour le carrousel d'images
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    useEffect(() => {
+        loadAnnonce();
+        lockAnnonce();
+        
+        // Déverrouiller quand on quitte la page
+        return () => {
+            unlockAnnonce();
+        };
+    }, [id]);
+
+    const lockAnnonce = async () => {
+        try {
+            const response = await fetch(`/api/moderation/annonce/${id}/lock`, {
+                method: 'POST',
+            });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                // Code 423 = annonce verrouillée par quelqu'un d'autre
+                if (response.status === 423) {
+                    setLockError(data.message || 'Cette annonce est en cours de traitement par un autre modérateur.');
+                    setLockStatus(data);
+                    setIsLocked(false);
+                } else {
+                    throw new Error(data.error || 'Erreur lors du verrouillage');
+                }
+            } else {
+                setIsLocked(true);
+                setLockStatus(data);
+            }
+        } catch (err) {
+            console.error('Erreur de verrouillage:', err);
+        }
+    };
+
+    const unlockAnnonce = async () => {
+        if (!isLocked) return;
+        
+        try {
+            await fetch(`/api/moderation/annonce/${id}/unlock`, {
+                method: 'POST',
+            });
+        } catch (err) {
+            console.error('Erreur de déverrouillage:', err);
+        }
+    };
 
     useEffect(() => {
         loadAnnonce();
@@ -33,7 +88,7 @@ export default function ModerationAnnonceShow({ id }) {
     };
 
     const handleValidate = async () => {
-        if (!annonce) return;
+        if (!annonce || !isLocked) return;
         setProcessing(true);
         try {
             const response = await fetch(`/api/admin/annonce/${annonce.id}/decide`, {
@@ -44,9 +99,18 @@ export default function ModerationAnnonceShow({ id }) {
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
-                throw new Error(data.error || 'Erreur lors de la validation');
+                
+                // Si l'annonce est verrouillée par un autre
+                if (response.status === 423) {
+                    setLockError(data.message || 'Cette annonce est en cours de traitement par un autre modérateur.');
+                    setIsLocked(false);
+                    return;
+                }
+                
+                throw new Error(data.message || data.error || 'Erreur lors de la validation');
             }
 
+            // Redirection après succès (le verrou est automatiquement libéré côté backend)
             window.location.href = '/admin/dashboard';
         } catch (err) {
             setError(err.message);
@@ -78,6 +142,11 @@ export default function ModerationAnnonceShow({ id }) {
             return;
         }
 
+        if (!isLocked) {
+            setLockError('Vous ne pouvez pas refuser cette annonce car elle n\'est pas verrouillée par vous.');
+            return;
+        }
+
         setProcessing(true);
         try {
             const response = await fetch(`/api/admin/annonce/${annonce.id}/decide`, {
@@ -88,9 +157,19 @@ export default function ModerationAnnonceShow({ id }) {
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
-                throw new Error(data.error || 'Erreur lors du refus');
+                
+                // Si l'annonce est verrouillée par un autre
+                if (response.status === 423) {
+                    setLockError(data.message || 'Cette annonce est en cours de traitement par un autre modérateur.');
+                    setIsLocked(false);
+                    closeRejectModal();
+                    return;
+                }
+                
+                throw new Error(data.message || data.error || 'Erreur lors du refus');
             }
 
+            // Redirection après succès (le verrou est automatiquement libéré côté backend)
             window.location.href = '/admin/dashboard';
         } catch (err) {
             setError(err.message);
@@ -134,7 +213,9 @@ export default function ModerationAnnonceShow({ id }) {
                                 {annonce.createdAt}
                                 <span className="mx-2">•</span>
                                 <i className="bi bi-geo-alt me-1"></i>
-                                {annonce.campus}
+                                {annonce.campuses && annonce.campuses.length > 0 
+                                    ? annonce.campuses.join(', ') 
+                                    : 'Non spécifié'}
                             </div>
 
                             <div className="mb-3">
@@ -149,16 +230,78 @@ export default function ModerationAnnonceShow({ id }) {
                             </div>
 
                             {annonce.images?.length > 0 && (
-                                <div className="row g-2">
-                                    {annonce.images.map((src, idx) => (
-                                        <div className="col-6" key={idx}>
-                                            <img
-                                                src={src}
-                                                alt={`image-${idx}`}
-                                                className="img-fluid rounded border"
-                                            />
+                                <div>
+                                    <h5 className="mb-3">Images</h5>
+                                    
+                                    {/* Carrousel principal */}
+                                    <div className="position-relative mb-3" style={{
+                                        backgroundColor: '#f0f0f0',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden',
+                                        minHeight: '350px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <img
+                                            src={annonce.images[currentImageIndex]}
+                                            alt={`Image ${currentImageIndex + 1}`}
+                                            className="img-fluid"
+                                            style={{ maxHeight: '400px', objectFit: 'contain' }}
+                                        />
+                                        
+                                        {/* Boutons navigation */}
+                                        {annonce.images.length > 1 && (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-2"
+                                                    onClick={() => setCurrentImageIndex((currentImageIndex - 1 + annonce.images.length) % annonce.images.length)}
+                                                    style={{ width: '40px', height: '40px' }}
+                                                >
+                                                    <i className="bi bi-chevron-left"></i>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-2"
+                                                    onClick={() => setCurrentImageIndex((currentImageIndex + 1) % annonce.images.length)}
+                                                    style={{ width: '40px', height: '40px' }}
+                                                >
+                                                    <i className="bi bi-chevron-right"></i>
+                                                </button>
+                                            </>
+                                        )}
+                                        
+                                        {/* Badge image count */}
+                                        <div className="position-absolute bottom-0 start-50 translate-middle-x mb-2">
+                                            <span className="badge bg-dark">{currentImageIndex + 1} / {annonce.images.length}</span>
                                         </div>
-                                    ))}
+                                    </div>
+                                    
+                                    {/* Miniatures */}
+                                    {annonce.images.length > 1 && (
+                                        <div className="d-flex gap-2 overflow-auto pb-2">
+                                            {annonce.images.map((src, index) => (
+                                                <div key={index} className="position-relative flex-shrink-0">
+                                                    <img
+                                                        src={src}
+                                                        alt={`Miniature ${index + 1}`}
+                                                        className="rounded border-2 cursor-pointer"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '80px',
+                                                            objectFit: 'cover',
+                                                            borderColor: currentImageIndex === index ? '#0d6efd' : '#ccc',
+                                                            borderWidth: '2px',
+                                                            cursor: 'pointer',
+                                                            opacity: currentImageIndex === index ? 1 : 0.7
+                                                        }}
+                                                        onClick={() => setCurrentImageIndex(index)}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -166,6 +309,32 @@ export default function ModerationAnnonceShow({ id }) {
                 </div>
 
                 <div className="col-lg-5">
+                    {/* Affichage de l'état du verrouillage */}
+                    {lockError && (
+                        <div className="alert alert-danger" role="alert">
+                            <i className="bi bi-lock-fill me-2"></i>
+                            <strong>Annonce verrouillée</strong>
+                            <p className="mb-0 mt-2">{lockError}</p>
+                            {lockStatus?.locked_by && (
+                                <p className="mb-0 mt-1 small">
+                                    Verrouillée par <strong>{lockStatus.locked_by}</strong> le {lockStatus.locked_at}
+                                </p>
+                            )}
+                            <hr />
+                            <a href="/admin/dashboard" className="btn btn-sm btn-secondary">
+                                <i className="bi bi-arrow-left me-1"></i>
+                                Retour à la liste
+                            </a>
+                        </div>
+                    )}
+                    
+                    {isLocked && (
+                        <div className="alert alert-success" role="alert">
+                            <i className="bi bi-unlock-fill me-2"></i>
+                            Vous avez verrouillé cette annonce. Vous pouvez maintenant la modérer.
+                        </div>
+                    )}
+                    
                     <div className="card shadow-sm border-0">
                         <div className="card-body">
                             <h5 className="mb-3">Auteur</h5>
@@ -173,16 +342,15 @@ export default function ModerationAnnonceShow({ id }) {
                                 <i className="bi bi-person me-2"></i>
                                 {annonce.owner?.cas_uid}
                             </div>
-                            <div className="mb-4">
-                                <i className="bi bi-envelope me-2"></i>
-                                {annonce.owner?.email}
+                            <div className="mb-4 text-muted small">
+                                Adresse e-mail masquée (donnée sensible)
                             </div>
 
                             <div className="d-grid gap-2">
                                 <button
                                     className="btn btn-success"
                                     onClick={handleValidate}
-                                    disabled={processing}
+                                    disabled={processing || !isLocked}
                                 >
                                     <i className="bi bi-check-circle me-2"></i>
                                     Valider l'annonce
@@ -190,7 +358,7 @@ export default function ModerationAnnonceShow({ id }) {
                                 <button
                                     className="btn btn-danger"
                                     onClick={openRejectModal}
-                                    disabled={processing}
+                                    disabled={processing || !isLocked}
                                 >
                                     <i className="bi bi-x-circle me-2"></i>
                                     Refuser l'annonce
@@ -199,10 +367,12 @@ export default function ModerationAnnonceShow({ id }) {
                         </div>
                     </div>
 
-                    <div className="alert alert-warning mt-3" role="alert">
-                        <i className="bi bi-info-circle me-2"></i>
-                        Cette annonce est en attente de validation. Vérifie le contenu, les images et la conformité à la charte.
-                    </div>
+                    {isLocked && (
+                        <div className="alert alert-warning mt-3" role="alert">
+                            <i className="bi bi-info-circle me-2"></i>
+                            Cette annonce est en attente de validation. Vérifie le contenu, les images et la conformité à la charte.
+                        </div>
+                    )}
                 </div>
             </div>
 

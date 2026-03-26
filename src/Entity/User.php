@@ -25,11 +25,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
+    #[ORM\Column(length: 20, unique: true, nullable: true)]
+    private ?string $alias = null;
+
     #[ORM\Column(type: 'json')]
     private array $roles = [];
-
-    #[ORM\Column(type: 'string', enumType: Campus::class, nullable: true)]
-    private ?Campus $moderatedCampus = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $isBanned = false;
@@ -133,6 +133,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getAlias(): ?string
+    {
+        return $this->alias;
+    }
+
+    public function setAlias(?string $alias): static
+    {
+        $this->alias = $alias;
+        return $this;
+    }
+
     public function getUserIdentifier(): string
     {
         return (string) $this->casUid;
@@ -159,17 +170,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-        return $this;
-    }
-
-    public function getModeratedCampus(): ?Campus
-    {
-        return $this->moderatedCampus;
-    }
-
-    public function setModeratedCampus(?Campus $moderatedCampus): static
-    {
-        $this->moderatedCampus = $moderatedCampus;
         return $this;
     }
 

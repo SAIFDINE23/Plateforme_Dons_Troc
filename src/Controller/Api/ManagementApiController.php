@@ -39,11 +39,13 @@ class ManagementApiController extends AbstractController
         // Formatter les données
         $data = [];
         foreach ($annonces as $annonce) {
-            $image = null;
+            $images = [];
             if ($annonce->getImages()->count() > 0) {
-                $firstImage = $annonce->getImages()->first();
-                $image = '/uploads/annonces/' . $firstImage->getImageName();
+                foreach ($annonce->getImages() as $annonceImage) {
+                    $images[] = '/uploads/annonces/' . $annonceImage->getImageName();
+                }
             }
+            $image = $images[0] ?? null;
 
             $data[] = [
                 'id' => $annonce->getId()->toRfc4122(),
@@ -51,6 +53,7 @@ class ManagementApiController extends AbstractController
                 'status' => $annonce->getState()->value,
                 'date' => $annonce->getCreatedAt()->format('d/m/Y'),
                 'image' => $image,
+                'images' => $images,
                 'refusalReason' => $annonce->getRefusalReason(),
             ];
         }
@@ -67,13 +70,12 @@ class ManagementApiController extends AbstractController
     #[Route('/api/admin/pending', name: 'api_admin_pending', methods: ['GET'])]
     public function getPendingAnnonces(AnnonceRepository $annonceRepository): JsonResponse
     {
-        // Vérifier que l'utilisateur a ROLE_ADMIN ou ROLE_MODERATOR
-        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_MODERATOR')) {
+        // Vérifier que l'utilisateur est au moins MODERATOR
+        if (!$this->isGranted('ROLE_MODERATOR')) {
             throw $this->createAccessDeniedException('Accès refusé');
         }
-
-        $user = $this->getUser();
         
+        // Tous les modérateurs et responsables peuvent voir toutes les annonces
         $qb = $annonceRepository->createQueryBuilder('a')
             ->leftJoin('a.owner', 'u')
             ->leftJoin('a.images', 'img')
@@ -81,12 +83,6 @@ class ManagementApiController extends AbstractController
             ->where('a.state = :state')
             ->setParameter('state', AnnonceState::PENDING_REVIEW)
             ->orderBy('a.createdAt', 'ASC');
-
-        // Si modérateur local (non-admin), filtrer par campus
-        if (!$this->isGranted('ROLE_ADMIN') && $user->getModeratedCampus()) {
-            $qb->andWhere('a.campus = :campus')
-                ->setParameter('campus', $user->getModeratedCampus());
-        }
 
         $annonces = $qb->getQuery()->getResult();
 
@@ -104,7 +100,7 @@ class ManagementApiController extends AbstractController
                 'title' => mb_convert_encoding($annonce->getTitle(), 'UTF-8', 'UTF-8'),
                 'description' => mb_convert_encoding(substr($annonce->getDescription(), 0, 150), 'UTF-8', 'UTF-8') . '...',
                 'owner' => $annonce->getOwner()->getCasUid(),
-                'campus' => $annonce->getCampus()->value,
+                'campuses' => $annonce->getCampuses(),
                 'date' => $annonce->getCreatedAt()->format('d/m/Y H:i'),
                 'image' => $image,
             ];
@@ -122,7 +118,7 @@ class ManagementApiController extends AbstractController
         string $id,
         AnnonceRepository $annonceRepository
     ): JsonResponse {
-        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_MODERATOR')) {
+        if (!$this->isGranted('ROLE_MODERATOR')) {
             throw $this->createAccessDeniedException('Accès refusé');
         }
 
@@ -146,11 +142,7 @@ class ManagementApiController extends AbstractController
             return $this->json(['error' => 'Annonce non disponible pour modération'], 400);
         }
 
-        if (!$this->isGranted('ROLE_ADMIN') && $user && method_exists($user, 'getModeratedCampus')) {
-            if ($user->getModeratedCampus() && $annonce->getCampus() !== $user->getModeratedCampus()) {
-                return $this->json(['error' => 'Vous ne pouvez pas modérer cette annonce'], 403);
-            }
-        }
+        // Tous les modérateurs peuvent modérer toutes les annonces
 
         $images = [];
         foreach ($annonce->getImages() as $image) {
@@ -161,7 +153,7 @@ class ManagementApiController extends AbstractController
             'id' => $annonce->getId()->toRfc4122(),
             'title' => $annonce->getTitle(),
             'description' => $annonce->getDescription(),
-            'campus' => $annonce->getCampus()->value,
+            'campuses' => $annonce->getCampuses(),
             'type' => $annonce->getType()->value,
             'price' => $annonce->getType()->value === 'DON' ? 'Gratuit' : 'Troc',
             'category' => $annonce->getCategory()?->getName(),
@@ -189,22 +181,41 @@ class ManagementApiController extends AbstractController
         AnnonceRepository $annonceRepository,
         EntityManagerInterface $em
     ): JsonResponse {
-        // Vérifier que l'utilisateur a ROLE_ADMIN ou ROLE_MODERATOR
-        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_MODERATOR')) {
+        // Vérifier que l'utilisateur est au moins MODERATOR
+        if (!$this->isGranted('ROLE_MODERATOR')) {
             throw $this->createAccessDeniedException('Accès refusé');
         }
         $user = $this->getUser();
         
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+
         // Récupérer l'annonce
         $annonce = $annonceRepository->find($id);
         if (!$annonce) {
             return $this->json(['error' => 'Annonce non trouvée'], 404);
         }
 
-        // Vérification de sécurité : modérateur local ne peut valider que ses annonces
-        if (!$this->isGranted('ROLE_ADMIN') && $user->getModeratedCampus()) {
-            if ($annonce->getCampus() !== $user->getModeratedCampus()) {
-                return $this->json(['error' => 'Vous ne pouvez pas modérer cette annonce'], 403);
+        // SÉCURITÉ : Vérifier le verrouillage pessimiste
+        // Libérer automatiquement si le verrou a expiré (> 30 minutes)
+        if ($annonce->isLocked() && $annonce->isLockExpired()) {
+            $annonce->unlock();
+            $em->flush();
+        }
+
+        // Vérifier que seul celui qui a verrouillé (ou un RESPONSABLE) peut valider/refuser
+        if ($annonce->isLocked()) {
+            if (!$annonce->isLockedBy($currentUser) && !$this->isGranted('ROLE_RESPONSABLE')) {
+                $lockedBy = $annonce->getLockedBy();
+                $lockedByName = $lockedBy?->getCasUid() ?? 'un autre modérateur';
+                
+                return $this->json([
+                    'success' => false,
+                    'message' => "Cette annonce est actuellement gérée par {$lockedByName}. Veuillez patienter qu'il termine ou choisir une autre annonce.",
+                    'locked_by' => $lockedBy?->getCasUid(),
+                    'locked_by_email' => $lockedBy?->getEmail(),
+                    'locked_at' => $annonce->getLockedAt()?->format('d/m/Y à H:i'),
+                ], 423); // 423 Locked
             }
         }
 
@@ -244,6 +255,9 @@ class ManagementApiController extends AbstractController
         } else {
             return $this->json(['error' => 'Action invalide'], 400);
         }
+
+        // AUTOMATIQUEMENT déverrouiller l'annonce après validation/refus
+        $annonce->unlock();
 
         $em->persist($annonce);
         $em->flush();

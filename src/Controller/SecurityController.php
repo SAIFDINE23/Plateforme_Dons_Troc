@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,8 +13,23 @@ class SecurityController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // Si l'utilisateur est déjà connecté, le rediriger vers l'accueil
+        // Si l'utilisateur est déjà connecté
         if ($this->getUser()) {
+            /** @var User $user */
+            $user = $this->getUser();
+
+            // Vérifier si l'utilisateur a défini un alias
+            if ($user->getAlias() === null || trim($user->getAlias()) === '') {
+                return $this->redirectToRoute('app_user_alias_setup');
+            }
+            
+            // Vérifier si l'utilisateur a accepté la charte
+            if ($user->getCharteAgreements()->isEmpty()) {
+                // Pas accepté la charte → rediriger vers le stepper
+                return $this->redirectToRoute('app_charte_stepper');
+            }
+            
+            // Charte acceptée → rediriger vers l'accueil
             return $this->redirectToRoute('app_home');
         }
 

@@ -64,8 +64,8 @@ class AnnonceVoter extends Voter
             return true;
         }
 
-        // Les modérateurs et admins peuvent voir toutes les annonces
-        if (in_array('ROLE_MODERATOR', $user->getRoles()) || in_array('ROLE_ADMIN', $user->getRoles())) {
+        // Les modérateurs et responsables peuvent voir toutes les annonces
+        if (in_array('ROLE_MODERATOR', $user->getRoles(), true) || in_array('ROLE_RESPONSABLE', $user->getRoles(), true)) {
             return true;
         }
 

@@ -88,12 +88,52 @@ h1, h2, h3, h4, h5, h6,
 }
 
 // =====================================
+// LANDING PAGE SIMPLE
+// =====================================
+
+.landing-simple {
+  .landing-hero {
+    background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+    color: #fff;
+  }
+
+  .landing-kicker {
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.08em;
+  }
+
+  .landing-panel {
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: $border-radius-lg;
+  }
+
+  .landing-card {
+    background-color: #fff;
+    border: 1px solid rgba($primary, 0.12);
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow-sm;
+  }
+
+  .landing-campus {
+    background-color: rgba($primary, 0.06);
+    border: 1px solid rgba($primary, 0.12);
+
+    .badge {
+      color: $primary;
+      border: 1px solid rgba($primary, 0.2);
+      background-color: #fff !important;
+    }
+  }
+}
+
+// =====================================
 // 9. NAVBAR - FOND BLANC AVEC LOGO ULCO
 // =====================================
 
 .navbar-eilco {
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 0.75rem 0;
   border-bottom: 3px solid $primary;
   
@@ -104,6 +144,7 @@ h1, h2, h3, h4, h5, h6,
     color: $primary !important;
     letter-spacing: 0.5px;
     transition: all 0.2s ease;
+    white-space: nowrap;
     
     img {
       transition: transform 0.2s ease;
@@ -118,42 +159,186 @@ h1, h2, h3, h4, h5, h6,
     }
   }
   
-  .nav-link {
-    color: $primary !important;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    transition: all 0.2s ease;
+  // ========== NAVIGATION PRINCIPALE ==========
+  .navbar-nav {
+    align-items: center;
     
-    &:hover,
-    &:focus {
-      color: $secondary !important;
-      background-color: rgba($primary, 0.05);
-      border-radius: $border-radius-sm;
+    // Séparateur visuel entre sections
+    .separator {
+      height: 24px;
+      width: 1px;
+      background: rgba($primary, 0.2);
+      margin: 0 0.5rem;
+      opacity: 0.5;
     }
     
-    &.active {
-      color: $secondary !important;
-      font-weight: 600;
+    // Liens de navigation standards
+    .nav-link {
+      color: $primary !important;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      transition: all 0.2s ease;
+      border-radius: $border-radius-sm;
+      white-space: nowrap;
+      font-size: 0.95rem;
+      
+      i {
+        margin-right: 0.4rem;
+      }
+      
+      &:hover,
+      &:focus {
+        color: $secondary !important;
+        background-color: rgba($primary, 0.08);
+      }
+      
+      &.active {
+        color: $secondary !important;
+        font-weight: 600;
+        background-color: rgba($secondary, 0.1);
+      }
+      
+      // Lien principal CTA (Déposer une annonce)
+      &.nav-link-cta {
+        color: white !important;
+        background: linear-gradient(135deg, $secondary, #0086b3);
+        font-weight: 600;
+        padding: 0.55rem 1rem;
+        border-radius: $border-radius;
+        transition: all 0.2s ease;
+        
+        &:hover,
+        &:focus {
+          background: linear-gradient(135deg, #0086b3, $secondary);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba($secondary, 0.3);
+        }
+      }
+      
+      // Lien de navigation principal
+      &.nav-link-main {
+        font-weight: 600;
+        color: $primary !important;
+        
+        &:hover {
+          color: $secondary !important;
+        }
+      }
+      
+      // Lien Admin/Modération - Styling distinctif
+      &.nav-link-admin {
+        color: white !important;
+        font-weight: 600;
+        background: linear-gradient(135deg, #d9534f, #c9302c);
+        padding: 0.55rem 1rem;
+        border-radius: $border-radius-sm;
+        box-shadow: 0 2px 8px rgba(#d9534f, 0.2);
+        transition: all 0.2s ease;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        // Indicateur pulsant
+        &::after {
+          content: '';
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          background-color: #ffc107;
+          border-radius: 50%;
+          animation: pulse-indicator 2s infinite;
+          margin-left: 0.25rem;
+        }
+        
+        &:hover {
+          background: linear-gradient(135deg, #c9302c, #b92e26);
+          color: white !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(#d9534f, 0.3);
+        }
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(#d9534f, 0.2);
+        }
+      }
     }
   }
   
-  .dropdown-menu {
+  // ========== BARRE DE DROITE ==========
+  .navbar-notifications {
+    display: flex;
+    align-items: center;
+    
+    [role="button"] {
+      position: relative;
+      padding: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  .navbar-user-menu {
+    .btn-link {
+      color: $primary !important;
+      font-weight: 500;
+      padding: 0.25rem 0.5rem;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        color: $secondary !important;
+        transform: translateY(-1px);
+      }
+      
+      i {
+        transition: transform 0.2s ease;
+      }
+      
+      &.show i {
+        color: $secondary;
+      }
+    }
+  }
+  
+  // ========== DROPDOWN MENU ==========
+  .navbar-dropdown {
     border: none;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     border-radius: $border-radius-lg;
     padding: 0.5rem 0;
-    margin-top: 0.5rem;
-    min-width: 220px;
+    margin-top: 0.75rem;
+    min-width: 280px;
     
     .dropdown-header {
       color: $primary;
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       padding: 0.75rem 1rem;
       background-color: rgba($primary, 0.05);
+      border-bottom: 1px solid rgba($primary, 0.1);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       
       i {
         color: $secondary;
+      }
+    }
+    
+    .dropdown-item-text {
+      padding: 0.5rem 1.25rem;
+      display: flex;
+      align-items: center;
+      color: $text-muted;
+      font-size: 0.9rem;
+      
+      &:first-of-type {
+        margin-top: 0;
       }
     }
     
@@ -164,9 +349,10 @@ h1, h2, h3, h4, h5, h6,
       transition: all 0.2s ease;
       
       i {
-        width: 20px;
-        margin-right: 0.5rem;
+        width: 18px;
+        margin-right: 0.75rem;
         color: $secondary;
+        font-size: 1rem;
       }
       
       &:hover,
@@ -180,40 +366,123 @@ h1, h2, h3, h4, h5, h6,
         }
       }
       
-      &:active {
-        background-color: rgba($primary, 0.12);
-        color: $primary;
+      &.text-primary {
+        color: $primary !important;
+        font-weight: 500;
+        
+        &:hover {
+          background-color: rgba($primary, 0.12);
+        }
+      }
+      
+      &.text-danger {
+        color: #d9534f !important;
+        
+        &:hover {
+          background-color: rgba(#d9534f, 0.08);
+          color: #c9302c !important;
+        }
       }
     }
     
     .dropdown-divider {
       margin: 0.5rem 0;
-      border-color: rgba($primary, 0.1);
+      opacity: 0.5;
+    }
+    
+    // Style distinctif pour items modération dans dropdown
+    .dropdown-item[href*="admin"][href*="dashboard"],
+    .dropdown-item[href*="admin"][href*="users"] {
+      background-color: rgba(#d9534f, 0.05);
+      border-left: 3px solid #d9534f;
+      padding-left: 1rem;
+      
+      i {
+        color: #d9534f;
+      }
+      
+      &:hover {
+        background-color: rgba(#d9534f, 0.12);
+        border-left-color: #c9302c;
+      }
     }
   }
   
-  // Style pour les liens spéciaux (admin/moderateur)
-  .nav-link.fw-bold {
-    background-color: rgba($primary, 0.1) !important;
-    color: $primary !important;
+  // ========== RESPONSIVE ==========
+  @media (max-width: 991px) {
+    .navbar-collapse {
+      padding-top: 1rem;
+      border-top: 1px solid rgba($primary, 0.1);
+    }
     
-    &:hover {
-      background-color: rgba($primary, 0.15) !important;
-      color: $primary !important;
+    .navbar-nav {
+      .separator {
+        display: none !important;
+      }
+      
+      .nav-link {
+        padding: 0.6rem 0;
+        font-size: 0.95rem;
+      }
+    }
+    
+    .navbar-user-menu {
+      width: 100%;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba($primary, 0.1);
+      
+      .btn-link {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+    
+    .navbar-notifications {
+      margin-bottom: 1rem;
     }
   }
   
-  // Toggler icon pour mobile
-  .navbar-toggler {
-    border-color: rgba($primary, 0.2);
-    
-    &:focus {
-      box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
+  @media (max-width: 576px) {
+    .navbar-brand {
+      font-size: 1.25rem;
+      
+      img {
+        height: 36px !important;
+      }
     }
     
-    .navbar-toggler-icon {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23004E86' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    .navbar-dropdown {
+      min-width: 250px;
     }
+  }
+}
+
+// Animation pulse pour l'indicateur
+@keyframes pulse-indicator {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(#ffc107, 0.7);
+  }
+  50% {
+    opacity: 0.7;
+  }
+  75% {
+    box-shadow: 0 0 0 6px rgba(#ffc107, 0);
+  }
+}
+
+// ========== NAVBAR TOGGLER (MOBILE) ==========
+.navbar-toggler {
+  border-color: rgba($primary, 0.2);
+  transition: all 0.2s ease;
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23004E86' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
   }
 }
 
@@ -288,6 +557,35 @@ h1, h2, h3, h4, h5, h6,
   overflow: hidden;
   height: 100%;
   
+
+  // Bouton favori - page détail annonce
+  .favorite-toggle-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background-color: #fff;
+    border: 1px solid rgba($primary, 0.15);
+    color: #6c757d;
+
+    &:hover,
+    &:focus {
+      background-color: #fff;
+      border-color: rgba($accent, 0.5);
+      color: $accent;
+      transform: translateY(-1px);
+    }
+
+    &.is-favorite {
+      color: $accent;
+      border-color: rgba($accent, 0.45);
+      background-color: rgba($accent, 0.08);
+    }
+
+    .favorite-toggle-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+  }
   &:hover {
     box-shadow: $box-shadow;
     transform: translateY(-4px);
@@ -604,35 +902,51 @@ h1, h2, h3, h4, h5, h6,
 // =====================================
 
 .status-badge {
+  display: inline-flex;
+  align-items: center;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 0.4rem 0.8rem;
   border-radius: $border-radius-pill;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   
   &.status-published {
-    background-color: rgba($success, 0.15);
-    color: darken($success, 10%);
-    border: 1px solid rgba($success, 0.3);
+    background-color: $success;
+    color: #fff;
+    border-color: darken($success, 8%);
   }
   
   &.status-pending {
-    background-color: rgba($warning, 0.15);
-    color: darken($warning, 20%);
-    border: 1px solid rgba($warning, 0.3);
+    background-color: $warning;
+    color: #212529;
+    border-color: darken($warning, 15%);
   }
   
   &.status-rejected {
-    background-color: rgba($danger, 0.15);
-    color: darken($danger, 10%);
-    border: 1px solid rgba($danger, 0.3);
+    background-color: $danger;
+    color: #fff;
+    border-color: darken($danger, 8%);
   }
   
   &.status-completed {
-    background-color: rgba($secondary, 0.15);
-    color: darken($secondary, 15%);
-    border: 1px solid rgba($secondary, 0.3);
+    background-color: $secondary;
+    color: #fff;
+    border-color: darken($secondary, 12%);
+  }
+
+  &.status-draft {
+    background-color: #6c757d;
+    color: #fff;
+    border-color: darken(#6c757d, 8%);
+  }
+
+  &.status-archived {
+    background-color: #343a40;
+    color: #fff;
+    border-color: darken(#343a40, 8%);
   }
 }
 

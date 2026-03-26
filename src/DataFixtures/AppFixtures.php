@@ -25,46 +25,39 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $users = [
-            // 1 Admin Global (Super Admin)
+            // 2 Responsables (peuvent tout faire: modération + gestion des modérateurs)
             [
-                'firstName' => 'Admin',
-                'lastName' => 'Global',
-                'roles' => ['ROLE_ADMIN'],
+                'firstName' => 'Alice',
+                'lastName' => 'Responsable',
+                'roles' => ['ROLE_RESPONSABLE', 'ROLE_MODERATOR', 'ROLE_USER'],
+                'campus' => null,
+                'isStaff' => true,
+            ],
+            [
+                'firstName' => 'Bob',
+                'lastName' => 'Responsable',
+                'roles' => ['ROLE_RESPONSABLE', 'ROLE_MODERATOR', 'ROLE_USER'],
                 'campus' => null,
                 'isStaff' => true,
             ],
 
-            // 4 Modérateurs de Campus
+            // 2 Modérateurs (gèrent les annonces + bannir users de tous les campus)
             [
                 'firstName' => 'Jean',
-                'lastName' => 'Dupont',
-                'roles' => ['ROLE_MODERATOR'],
-                'campus' => Campus::CALAIS,
+                'lastName' => 'Moderator',
+                'roles' => ['ROLE_MODERATOR', 'ROLE_USER'],
+                'campus' => null,
                 'isStaff' => true,
             ],
             [
                 'firstName' => 'Marie',
-                'lastName' => 'Curie',
-                'roles' => ['ROLE_MODERATOR'],
-                'campus' => Campus::DUNKERQUE,
-                'isStaff' => true,
-            ],
-            [
-                'firstName' => 'Paul',
-                'lastName' => 'Martin',
-                'roles' => ['ROLE_MODERATOR'],
-                'campus' => Campus::BOULOGNE,
-                'isStaff' => true,
-            ],
-            [
-                'firstName' => 'Luc',
-                'lastName' => 'Bernard',
-                'roles' => ['ROLE_MODERATOR'],
-                'campus' => Campus::SAINT_OMER,
+                'lastName' => 'Moderator',
+                'roles' => ['ROLE_MODERATOR', 'ROLE_USER'],
+                'campus' => null,
                 'isStaff' => true,
             ],
 
-            // 3 Étudiants
+            // 4 Étudiants normaux
             [
                 'firstName' => 'Sophie',
                 'lastName' => 'Leroy',
@@ -86,6 +79,13 @@ class AppFixtures extends Fixture
                 'campus' => null,
                 'isStaff' => false,
             ],
+            [
+                'firstName' => 'Lucas',
+                'lastName' => 'Dubois',
+                'roles' => ['ROLE_USER'],
+                'campus' => null,
+                'isStaff' => false,
+            ],
         ];
 
         foreach ($users as $userData) {
@@ -97,8 +97,7 @@ class AppFixtures extends Fixture
             $user
                 ->setCasUid($casUid)
                 ->setEmail($email)
-                ->setRoles($userData['roles'])
-                ->setModeratedCampus($userData['campus']);
+                ->setRoles($userData['roles']);
 
             $this->hashPassword($user);
 

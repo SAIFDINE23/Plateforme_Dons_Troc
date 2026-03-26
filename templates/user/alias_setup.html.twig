@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% set isEdit = mode is defined and mode == 'edit' %}
+{% block title %}{{ isEdit ? 'Modifier mon alias' : 'Choisir un alias' }} - ULC'OCCAZ{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="max-width: 640px;">
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <h1 class="h4 mb-3">Choisissez votre alias</h1>
+            <p class="text-muted mb-4">
+                Cet alias sera visible dans la messagerie à la place de votre identité.
+                Il doit être unique sur la plateforme.
+            </p>
+
+            {% if isEdit %}
+                <div class="alert alert-info">
+                    Alias actuel : <strong>@{{ app.user.alias is not empty ? app.user.alias : app.user.casUid }}</strong>
+                </div>
+            {% endif %}
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+
+            {% if error is defined and error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                <input type="hidden" name="_token" value="{{ csrf_token('set_alias') }}">
+
+                <div class="mb-3">
+                    <label for="alias" class="form-label">Alias</label>
+                    <input
+                        type="text"
+                        id="alias"
+                        name="alias"
+                        class="form-control"
+                        value="{{ alias|default('') }}"
+                        placeholder="ex: etudiant_59"
+                        minlength="3"
+                        maxlength="20"
+                        pattern="[a-z0-9._-]+"
+                        required
+                    >
+                    <div class="form-text">
+                        3 à 20 caractères, lettres minuscules, chiffres, ., -, _
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    {{ isEdit ? 'Mettre à jour mon alias' : 'Enregistrer mon alias' }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

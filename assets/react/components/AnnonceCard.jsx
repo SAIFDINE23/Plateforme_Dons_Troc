@@ -10,10 +10,15 @@ import toast from 'react-hot-toast';
  */
 const AnnonceCard = ({ annonce, index = 0 }) => {
     const [isFavorite, setIsFavorite] = useState(!!annonce.isFavorite);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         setIsFavorite(!!annonce.isFavorite);
     }, [annonce.isFavorite, annonce.id]);
+
+    useEffect(() => {
+        setCurrentImageIndex(0);
+    }, [annonce.id]);
 
     // Animation variants pour l'apparition progressive
     const cardVariants = {
@@ -50,20 +55,26 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
         }).format(date);
     };
 
-    // Générer l'URL de l'image
-    const imageUrl = annonce.photoFilename 
-        ? `/uploads/annonces/${annonce.photoFilename}`
-        : 'https://via.placeholder.com/400x200/004E86/FFFFFF?text=Pas+d\'image';
+    const images = Array.isArray(annonce.images) && annonce.images.length > 0
+        ? annonce.images
+        : (annonce.image ? [annonce.image] : (
+            annonce.photoFilename ? [`/uploads/annonces/${annonce.photoFilename}`] : []
+        ));
+    const fallbackImage = 'https://via.placeholder.com/400x200/004E86/FFFFFF?text=Pas+d\'image';
+    const currentImage = images[currentImageIndex] || fallbackImage;
 
     // Badge de statut avec couleur
     const getStatusBadge = (state) => {
         const badges = {
             PUBLISHED: { label: 'Publié', class: 'status-published' },
             PENDING: { label: 'En attente', class: 'status-pending' },
+            PENDING_REVIEW: { label: 'En attente de validation', class: 'status-pending' },
             REJECTED: { label: 'Rejeté', class: 'status-rejected' },
-            COMPLETED: { label: 'Terminé', class: 'status-completed' }
+            COMPLETED: { label: 'Terminé', class: 'status-completed' },
+            DRAFT: { label: 'Brouillon', class: 'status-draft' },
+            ARCHIVED: { label: 'Archivé', class: 'status-archived' }
         };
-        return badges[state] || { label: state, class: 'status-pending' };
+        return badges[state] || { label: state || 'Inconnu', class: 'status-pending' };
     };
 
     const status = getStatusBadge(annonce.state);
@@ -113,7 +124,7 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
                 {/* Image de l'annonce */}
                 <div className="position-relative overflow-hidden">
                     <img 
-                        src={imageUrl}
+                        src={currentImage}
                         className="card-img-top"
                         alt={annonce.title}
                         style={{ 
@@ -124,6 +135,36 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
                         onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                         onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                     />
+
+                    {images.length > 1 && (
+                        <>
+                            <button
+                                type="button"
+                                className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-2"
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    setCurrentImageIndex((currentImageIndex - 1 + images.length) % images.length);
+                                }}
+                                style={{ width: '32px', height: '32px', padding: 0, opacity: 0.85 }}
+                            >
+                                <i className="bi bi-chevron-left"></i>
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-2"
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    setCurrentImageIndex((currentImageIndex + 1) % images.length);
+                                }}
+                                style={{ width: '32px', height: '32px', padding: 0, opacity: 0.85 }}
+                            >
+                                <i className="bi bi-chevron-right"></i>
+                            </button>
+                            <div className="position-absolute bottom-0 start-50 translate-middle-x mb-2">
+                                <span className="badge bg-dark">{currentImageIndex + 1} / {images.length}</span>
+                            </div>
+                        </>
+                    )}
                     
                     {/* Badge de type (Don/Troc) */}
                     <div className="position-absolute top-0 end-0 m-2">
@@ -164,7 +205,9 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
                         <div className="d-flex align-items-center text-muted">
                             <MapPin size={16} className="me-2" style={{ color: '#009FE3' }} />
                             <span className="fw-medium">
-                                {annonce.campus || 'Non spécifié'}
+                                {annonce.campuses && annonce.campuses.length > 0 
+                                    ? annonce.campuses.join(', ')
+                                    : 'Non spécifié'}
                             </span>
                         </div>
 

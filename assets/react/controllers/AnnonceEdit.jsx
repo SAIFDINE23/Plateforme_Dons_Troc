@@ -6,7 +6,7 @@ export default function AnnonceEdit({ id }) {
         title: '',
         description: '',
         categoryId: '',
-        campus: '',
+        campuses: [],
         type: 'DON'
     });
     const [file, setFile] = useState(null);
@@ -16,6 +16,14 @@ export default function AnnonceEdit({ id }) {
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
     const [error, setError] = useState('');
+    
+    // Liste des campus disponibles
+    const availableCampuses = [
+        { value: 'CALAIS', label: '📍 Calais' },
+        { value: 'DUNKERQUE', label: '📍 Dunkerque' },
+        { value: 'BOULOGNE', label: '📍 Boulogne-sur-Mer' },
+        { value: 'SAINT_OMER', label: '📍 Saint-Omer' }
+    ];
 
     // Charger les catégories
     useEffect(() => {
@@ -48,7 +56,7 @@ export default function AnnonceEdit({ id }) {
                     title: data.title,
                     description: data.description,
                     categoryId: data.categoryId,
-                    campus: data.campus,
+                    campuses: data.campuses || [],
                     type: data.type
                 });
 
@@ -86,9 +94,9 @@ export default function AnnonceEdit({ id }) {
             return;
         }
 
-        // Vérification de la taille (2 Mo max)
-        if (selectedFile.size > 2 * 1024 * 1024) {
-            setError('L\'image ne doit pas dépasser 2 Mo');
+        // Vérification de la taille (1 Mo max)
+        if (selectedFile.size > 1 * 1024 * 1024) {
+            setError('L\'image ne doit pas dépasser 1 Mo');
             setFile(null);
             setPreview(null);
             return;
@@ -119,7 +127,7 @@ export default function AnnonceEdit({ id }) {
         setError('');
 
         // Validation
-        if (!formData.title || !formData.description || !formData.categoryId || !formData.campus) {
+        if (!formData.title || !formData.description || !formData.categoryId || formData.campuses.length === 0) {
             setError('Tous les champs sont obligatoires');
             return;
         }
@@ -144,7 +152,7 @@ export default function AnnonceEdit({ id }) {
         formDataToSend.append('title', formData.title);
         formDataToSend.append('description', formData.description);
         formDataToSend.append('categoryId', formData.categoryId);
-        formDataToSend.append('campus', formData.campus);
+        formDataToSend.append('campuses', JSON.stringify(formData.campuses));
         formDataToSend.append('type', formData.type);
 
         // N'ajouter l'image QUE si une nouvelle a été sélectionnée
@@ -215,25 +223,40 @@ export default function AnnonceEdit({ id }) {
                 <small className="text-muted">{formData.title.length}/100 caractères</small>
             </div>
 
-            {/* Campus */}
+            {/* Campus - Multi-sélection avec checkboxes */}
             <div className="mb-3">
-                <label htmlFor="campus" className="form-label fw-bold">
+                <label className="form-label fw-bold">
                     Campus <span className="text-danger">*</span>
                 </label>
-                <select
-                    className="form-select"
-                    id="campus"
-                    name="campus"
-                    value={formData.campus}
-                    onChange={handleChange}
-                    required
-                >
-                    <option value="">-- Sélectionnez votre campus --</option>
-                    <option value="BOULOGNE">Boulogne-sur-Mer</option>
-                    <option value="CALAIS">Calais</option>
-                    <option value="DUNKERQUE">Dunkerque</option>
-                    <option value="SAINT_OMER">Saint-Omer</option>
-                </select>
+                <div className="border rounded p-3 bg-light">
+                    <small className="text-muted d-block mb-2">
+                        Sélectionnez un ou plusieurs campus où vous proposez cet objet
+                    </small>
+                    {availableCampuses.map((campus) => (
+                        <div key={campus.value} className="form-check mb-2">
+                            <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id={`campus-edit-${campus.value}`}
+                                checked={formData.campuses.includes(campus.value)}
+                                onChange={() => {
+                                    const newCampuses = formData.campuses.includes(campus.value)
+                                        ? formData.campuses.filter(c => c !== campus.value)
+                                        : [...formData.campuses, campus.value];
+                                    setFormData({ ...formData, campuses: newCampuses });
+                                }}
+                            />
+                            <label className="form-check-label" htmlFor={`campus-edit-${campus.value}`}>
+                                {campus.label}
+                            </label>
+                        </div>
+                    ))}
+                    {formData.campuses.length === 0 && (
+                        <small className="text-danger d-block mt-2">
+                            ⚠️ Veuillez sélectionner au moins un campus
+                        </small>
+                    )}
+                </div>
             </div>
 
             {/* Catégorie */}
@@ -343,7 +366,7 @@ export default function AnnonceEdit({ id }) {
                     onChange={handleFileChange}
                 />
                 <small className="text-muted d-block mt-1">
-                    Formats acceptés : JPG, PNG, WEBP | Taille max : 2 Mo
+                    Formats acceptés : JPG, PNG, WEBP | Taille max : 1 Mo
                 </small>
             </div>
 
