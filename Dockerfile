@@ -22,7 +22,17 @@ FROM composer:2 AS composer_builder
 WORKDIR /app
 
 COPY composer.json composer.lock* ./
-COPY .env ./.env
+
+# Générer un .env minimal pour le build (les vraies valeurs viennent des variables d'environnement Render)
+RUN echo 'APP_ENV=prod' > .env \
+    && echo 'APP_SECRET=build-placeholder' >> .env \
+    && echo 'DATABASE_URL="postgresql://placeholder@localhost:5432/app"' >> .env \
+    && echo 'MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0' >> .env \
+    && echo 'MERCURE_URL=https://example.com/.well-known/mercure' >> .env \
+    && echo 'MERCURE_PUBLIC_URL=https://example.com/.well-known/mercure' >> .env \
+    && echo 'MERCURE_JWT_SECRET=placeholder' >> .env \
+    && echo 'MAILER_DSN=null://null' >> .env
+
 COPY config/ ./config/
 COPY src/ ./src/
 COPY bin/ ./bin/
@@ -89,7 +99,16 @@ COPY templates/ ./templates/
 COPY translations/ ./translations/
 COPY importmap.php ./importmap.php
 COPY composer.json ./composer.json
-COPY .env ./.env
+
+# Générer un .env minimal (les vraies valeurs viennent des variables d'environnement Render)
+RUN echo 'APP_ENV=prod' > .env \
+    && echo 'APP_SECRET=build-placeholder' >> .env \
+    && echo 'DATABASE_URL="postgresql://placeholder@localhost:5432/app"' >> .env \
+    && echo 'MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0' >> .env \
+    && echo 'MERCURE_URL=https://example.com/.well-known/mercure' >> .env \
+    && echo 'MERCURE_PUBLIC_URL=https://example.com/.well-known/mercure' >> .env \
+    && echo 'MERCURE_JWT_SECRET=placeholder' >> .env \
+    && echo 'MAILER_DSN=null://null' >> .env
 
 # Copier les dépendances Composer depuis le builder
 COPY --from=composer_builder /app/vendor/ ./vendor/
