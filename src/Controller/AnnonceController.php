@@ -52,8 +52,8 @@ class AnnonceController extends AbstractController
             throw $this->createNotFoundException('Annonce introuvable.');
         }
 
-        // Vérification de sécurité : publiée = tout le monde, sinon propriétaire/admin
-        if ($annonce->getState()->value !== 'PUBLISHED') {
+        // Vérification de sécurité : publiée ou terminée = tout le monde, sinon propriétaire/admin
+        if (!in_array($annonce->getState()->value, ['PUBLISHED', 'COMPLETED'], true)) {
             try {
                 $this->denyAccessUnlessGranted('VIEW', $annonce);
             } catch (\Exception $e) {

@@ -1,0 +1,50 @@
+# Dépendances
+node_modules/
+vendor/
+
+# Cache et logs Symfony
+var/
+
+# Build (sera reconstruit dans Docker)
+public/build/
+public/bundles/
+public/assets/
+
+# Fichiers de développement
+.git/
+.github/
+.vscode/
+.idea/
+
+# Fichiers d'environnement locaux
+.env.local
+.env.*.local
+.env.test
+
+# Tests
+tests/
+phpunit.xml
+phpunit.dist.xml
+.phpunit.cache/
+
+# Docker compose local
+compose.yaml
+compose.override.yaml
+
+# Documentation
+*.md
+LISEZMOI.md
+README.md
+CONCEPTION_UML.txt
+
+# Base de données locale
+database_export.sql
+
+# Assets vendor (sera installé par npm ci)
+assets/vendor/
+
+# Divers
+npm-debug.log
+yarn-error.log
+.DS_Store
+Thumbs.db

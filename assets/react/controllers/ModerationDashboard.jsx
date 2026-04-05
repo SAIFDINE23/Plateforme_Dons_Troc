@@ -177,11 +177,14 @@ export default function ModerationDashboard() {
                                             </td>
                                             <td>
                                                 {annonce.campuses && annonce.campuses.length > 0 ? (
-                                                    annonce.campuses.map((campus, idx) => (
-                                                        <span key={idx} className="badge bg-info me-1 mb-1">
-                                                            📍 {campus}
-                                                        </span>
-                                                    ))
+                                                    annonce.campuses.map((campus, idx) => {
+                                                        const labels = { CALAIS: 'Calais', DUNKERQUE: 'Dunkerque', BOULOGNE: 'Boulogne', SAINT_OMER: 'Saint-Omer' };
+                                                        return (
+                                                            <span key={idx} className="badge bg-info me-1 mb-1">
+                                                                📍 {labels[campus] || campus}
+                                                            </span>
+                                                        );
+                                                    })
                                                 ) : (
                                                     <span className="badge bg-secondary">Non spécifié</span>
                                                 )}

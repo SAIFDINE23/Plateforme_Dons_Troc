@@ -57,18 +57,19 @@
             {# BARRE DE DROITE : Notifications, Admin, Profil #}
             <div class="d-flex align-items-center gap-2 gap-lg-3 flex-wrap justify-content-between justify-content-lg-end">
                 {% if app.user %}
-                    {# ADMIN/MODÉRATION - Mise en avant distinctive #}
+                    {# ADMIN/MODÉRATION - Bouton très visible #}
                     {% if is_granted('ROLE_MODERATOR') %}
-                        <a class="nav-link nav-link-admin text-nowrap" href="{{ path('app_admin_dashboard') }}" 
+                        <a class="btn btn-moderation text-nowrap d-flex align-items-center gap-2" href="{{ path('app_admin_dashboard') }}" 
                            title="{% if is_granted('ROLE_RESPONSABLE') %}Aller à l'administration{% else %}Aller à la modération{% endif %}">
-                            <i class="bi bi-shield-check"></i>
-                            <span class="d-none d-lg-inline fw-bold">
+                            <i class="bi bi-shield-lock-fill fs-5"></i>
+                            <span class="fw-bold">
                                 {% if is_granted('ROLE_RESPONSABLE') %}
-                                    ⚙️ Administration
+                                    Administration
                                 {% else %}
-                                    🛡️ Modération
+                                    Modération
                                 {% endif %}
                             </span>
+                            <span class="moderation-pulse"></span>
                         </a>
                     {% endif %}
 

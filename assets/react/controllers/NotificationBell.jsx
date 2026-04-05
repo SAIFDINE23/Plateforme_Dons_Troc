@@ -87,7 +87,16 @@ export default function NotificationBell() {
     } : {};
 
     return (
-        <div className="dropdown notification-bell">
+        <div className="dropdown notification-bell" style={{ position: 'relative' }}>
+            {/* Fermeture au clic extérieur */}
+            {open && (
+                <div
+                    className="position-fixed top-0 start-0 w-100 h-100"
+                    style={{ zIndex: 1040 }}
+                    onClick={() => setOpen(false)}
+                />
+            )}
+
             <motion.button
                 className="btn btn-light position-relative"
                 type="button"
@@ -95,6 +104,7 @@ export default function NotificationBell() {
                 animate={bellAnimation}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                style={{ position: 'relative', zIndex: 1041 }}
             >
                 {hasNewNotification ? (
                     <BellRing size={20} style={{ color: '#F07D00' }} />
@@ -124,7 +134,16 @@ export default function NotificationBell() {
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
                         className="dropdown-menu dropdown-menu-end show shadow"
-                        style={{ minWidth: '340px', maxHeight: '400px', overflowY: 'auto', zIndex: 1050 }}
+                        style={{
+                            position: 'absolute',
+                            right: 0,
+                            top: '100%',
+                            minWidth: '320px',
+                            maxWidth: '90vw',
+                            maxHeight: '400px',
+                            overflowY: 'auto',
+                            zIndex: 1050
+                        }}
                     >
                         <h6 className="dropdown-header d-flex align-items-center gap-2" style={{ color: '#004E86' }}>
                             <Bell size={18} />
@@ -189,14 +208,6 @@ export default function NotificationBell() {
                 )}
             </AnimatePresence>
 
-            {/* Fermeture au clic extérieur */}
-            {open && (
-                <div
-                    className="position-fixed top-0 start-0 w-100 h-100"
-                    style={{ zIndex: 1040 }}
-                    onClick={() => setOpen(false)}
-                />
-            )}
         </div>
     );
 }

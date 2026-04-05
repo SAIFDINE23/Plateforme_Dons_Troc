@@ -214,14 +214,14 @@ export default function ModerationAnnonceShow({ id }) {
                                 <span className="mx-2">•</span>
                                 <i className="bi bi-geo-alt me-1"></i>
                                 {annonce.campuses && annonce.campuses.length > 0 
-                                    ? annonce.campuses.join(', ') 
+                                    ? annonce.campuses.map(c => ({ CALAIS: 'Calais', DUNKERQUE: 'Dunkerque', BOULOGNE: 'Boulogne', SAINT_OMER: 'Saint-Omer' }[c] || c)).join(', ') 
                                     : 'Non spécifié'}
                             </div>
 
                             <div className="mb-3">
                                 <span className="badge bg-secondary me-2">{annonce.price}</span>
-                                {annonce.category && (
-                                    <span className="badge bg-light text-dark">{annonce.category}</span>
+                                {(annonce.customCategoryName || annonce.category) && (
+                                    <span className="badge bg-light text-dark">{annonce.customCategoryName || annonce.category}</span>
                                 )}
                             </div>
 

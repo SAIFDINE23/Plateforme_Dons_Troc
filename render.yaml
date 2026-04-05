@@ -1,0 +1,44 @@
+# ==============================================================
+# render.yaml — Blueprint de déploiement Render
+# ==============================================================
+# Ce fichier permet à Render de configurer automatiquement
+# le service web Docker quand tu connectes ton repo GitHub.
+# ==============================================================
+
+services:
+  - type: web
+    name: ulcoccaz
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: frankfurt
+    envVars:
+      # --- Symfony ---
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: "0"
+      - key: APP_SECRET
+        generateValue: true
+
+      # --- Base de données Supabase ---
+      # ⚠️ À remplir avec ton URL Supabase (voir instructions)
+      - key: DATABASE_URL
+        sync: false
+
+      # --- Mercure (désactivé en prod pour l'instant) ---
+      - key: MERCURE_URL
+        value: ""
+      - key: MERCURE_PUBLIC_URL
+        value: ""
+      - key: MERCURE_JWT_SECRET
+        generateValue: true
+
+      # --- Mailer (optionnel) ---
+      - key: MAILER_DSN
+        value: "null://null"
+
+      # --- Messenger ---
+      - key: MESSENGER_TRANSPORT_DSN
+        value: "doctrine://default?auto_setup=0"

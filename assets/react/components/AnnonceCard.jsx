@@ -206,16 +206,16 @@ const AnnonceCard = ({ annonce, index = 0 }) => {
                             <MapPin size={16} className="me-2" style={{ color: '#009FE3' }} />
                             <span className="fw-medium">
                                 {annonce.campuses && annonce.campuses.length > 0 
-                                    ? annonce.campuses.join(', ')
+                                    ? annonce.campuses.map(c => ({ CALAIS: 'Calais', DUNKERQUE: 'Dunkerque', BOULOGNE: 'Boulogne', SAINT_OMER: 'Saint-Omer' }[c] || c)).join(', ')
                                     : 'Non spécifié'}
                             </span>
                         </div>
 
                         {/* Catégorie */}
-                        {annonce.category && (
+                        {(annonce.category || annonce.customCategoryName) && (
                             <div className="d-flex align-items-center text-muted">
                                 <Tag size={16} className="me-2" style={{ color: '#F07D00' }} />
-                                <span>{annonce.category.name}</span>
+                                <span>{annonce.customCategoryName || annonce.category?.name}</span>
                             </div>
                         )}
 

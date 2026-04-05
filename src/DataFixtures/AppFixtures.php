@@ -2,12 +2,8 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Annonce;
 use App\Entity\Category;
 use App\Entity\User;
-use App\Enum\AnnonceState;
-use App\Enum\AnnonceType;
-use App\Enum\Campus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -30,14 +26,12 @@ class AppFixtures extends Fixture
                 'firstName' => 'Alice',
                 'lastName' => 'Responsable',
                 'roles' => ['ROLE_RESPONSABLE', 'ROLE_MODERATOR', 'ROLE_USER'],
-                'campus' => null,
                 'isStaff' => true,
             ],
             [
                 'firstName' => 'Bob',
                 'lastName' => 'Responsable',
                 'roles' => ['ROLE_RESPONSABLE', 'ROLE_MODERATOR', 'ROLE_USER'],
-                'campus' => null,
                 'isStaff' => true,
             ],
 
@@ -46,14 +40,12 @@ class AppFixtures extends Fixture
                 'firstName' => 'Jean',
                 'lastName' => 'Moderator',
                 'roles' => ['ROLE_MODERATOR', 'ROLE_USER'],
-                'campus' => null,
                 'isStaff' => true,
             ],
             [
                 'firstName' => 'Marie',
                 'lastName' => 'Moderator',
                 'roles' => ['ROLE_MODERATOR', 'ROLE_USER'],
-                'campus' => null,
                 'isStaff' => true,
             ],
 
@@ -62,28 +54,24 @@ class AppFixtures extends Fixture
                 'firstName' => 'Sophie',
                 'lastName' => 'Leroy',
                 'roles' => ['ROLE_USER'],
-                'campus' => null,
                 'isStaff' => false,
             ],
             [
                 'firstName' => 'Emma',
                 'lastName' => 'Petit',
                 'roles' => ['ROLE_USER'],
-                'campus' => null,
                 'isStaff' => false,
             ],
             [
                 'firstName' => 'Hugo',
                 'lastName' => 'Moreau',
                 'roles' => ['ROLE_USER'],
-                'campus' => null,
                 'isStaff' => false,
             ],
             [
                 'firstName' => 'Lucas',
                 'lastName' => 'Dubois',
                 'roles' => ['ROLE_USER'],
-                'campus' => null,
                 'isStaff' => false,
             ],
         ];
@@ -104,18 +92,13 @@ class AppFixtures extends Fixture
             $manager->persist($user);
         }
 
-        $manager->flush();
-
-        // Créer des catégories
-        $categories = $this->createCategories($manager);
-
-        // Créer des annonces de test
-        $this->createAnnonces($manager, $categories);
+        // Créer les catégories (nécessaires pour le fonctionnement de l'application)
+        $this->createCategories($manager);
 
         $manager->flush();
     }
 
-    private function createCategories(ObjectManager $manager): array
+    private function createCategories(ObjectManager $manager): void
     {
         $categoryNames = [
             'Livres',
@@ -128,112 +111,12 @@ class AppFixtures extends Fixture
             'Sport',
         ];
 
-        $categories = [];
         foreach ($categoryNames as $name) {
             $category = new Category();
             $category->setName($name);
             $category->setSlug(strtolower(str_replace(' ', '-', $this->normalizeName($name))));
 
             $manager->persist($category);
-            $categories[] = $category;
-        }
-
-        return $categories;
-    }
-
-    private function createAnnonces(ObjectManager $manager, array $categories): void
-    {
-        // Récupérer quelques utilisateurs
-        $users = $manager->getRepository(User::class)->findAll();
-        if (empty($users)) {
-            return;
-        }
-
-        $annoncesData = [
-            [
-                'title' => 'Livre de mathématiques L1',
-                'description' => 'Livre de mathématiques niveau L1 en excellent état. Parfait pour réviser les bases de l\'analyse et de l\'algèbre linéaire. Contient des exercices corrigés et des rappels de cours.',
-                'type' => AnnonceType::DON,
-                'campus' => Campus::CALAIS,
-                'category' => 0, // Livres
-            ],
-            [
-                'title' => 'Clavier mécanique gaming',
-                'description' => 'Clavier mécanique avec rétroéclairage RGB. Fonctionne parfaitement, switches Cherry MX Red. Idéal pour gaming ou programmation. Disponible pour troc contre un écran.',
-                'type' => AnnonceType::TROC,
-                'campus' => Campus::DUNKERQUE,
-                'category' => 1, // Matériel Informatique
-            ],
-            [
-                'title' => 'Bureau étudiant IKEA',
-                'description' => 'Bureau blanc IKEA modèle MICKE, dimensions 105x50cm. Quelques traces d\'usage mais très solide. Parfait pour une chambre étudiante.',
-                'type' => AnnonceType::DON,
-                'campus' => Campus::BOULOGNE,
-                'category' => 2, // Mobilier
-            ],
-            [
-                'title' => 'Pull universitaire ULCO taille M',
-                'description' => 'Pull officiel ULCO taille M, couleur bleu marine. Porté seulement quelques fois. Parfait état, très chaud pour l\'hiver.',
-                'type' => AnnonceType::DON,
-                'campus' => Campus::SAINT_OMER,
-                'category' => 3, // Vêtements
-            ],
-            [
-                'title' => 'Micro-ondes compact',
-                'description' => 'Micro-ondes compact 20L, puissance 700W. Fonctionne parfaitement, facile à transporter. À donner car je déménage.',
-                'type' => AnnonceType::DON,
-                'campus' => Campus::CALAIS,
-                'category' => 4, // Électroménager
-            ],
-            [
-                'title' => 'Cours de physique L2 complets',
-                'description' => 'Polycopiés de tous les cours de physique L2 (mécanique, thermodynamique, électromagnétisme). Notes de cours + TD corrigés. État impeccable.',
-                'type' => AnnonceType::TROC,
-                'campus' => Campus::DUNKERQUE,
-                'category' => 6, // Fournitures Scolaires
-            ],
-            [
-                'title' => 'Raquette de badminton',
-                'description' => 'Raquette de badminton Yonex en bon état, cordée récemment. Livrée avec housse de protection. Parfaite pour jouer au gymnase universitaire.',
-                'type' => AnnonceType::DON,
-                'campus' => Campus::BOULOGNE,
-                'category' => 7, // Sport
-            ],
-            [
-                'title' => 'Calculatrice scientifique TI-83',
-                'description' => 'Calculatrice scientifique Texas Instruments TI-83 en parfait état de fonctionnement. Piles neuves incluses. Idéale pour les cours de maths et physique.',
-                'type' => AnnonceType::TROC,
-                'campus' => Campus::CALAIS,
-                'category' => 6, // Fournitures Scolaires
-            ],
-            [
-                'title' => 'Cafetière électrique',
-                'description' => 'Cafetière électrique filtre 1,2L. Plaque chauffante pour maintenir au chaud. Très peu utilisée, comme neuve. Indispensable pour les longues nuits de révision!',
-                'type' => AnnonceType::DON,
-                'campus' => Campus::SAINT_OMER,
-                'category' => 4, // Électroménager
-            ],
-            [
-                'title' => 'Lampe de bureau LED',
-                'description' => 'Lampe de bureau LED orientable avec 3 niveaux d\'intensité. Bras articulé et base stable. Parfaite pour étudier le soir.',
-                'type' => AnnonceType::DON,
-                'campus' => Campus::DUNKERQUE,
-                'category' => 2, // Mobilier
-            ],
-        ];
-
-        foreach ($annoncesData as $index => $data) {
-            $annonce = new Annonce();
-            $annonce->setTitle($data['title']);
-            $annonce->setDescription($data['description']);
-            $annonce->setType($data['type']);
-            $annonce->setState(AnnonceState::PUBLISHED);
-            $annonce->setCampus($data['campus']);
-            $annonce->setCategory($categories[$data['category']]);
-            $annonce->setOwner($users[$index % count($users)]);
-            $annonce->setExpiresAt(new \DateTime('+30 days'));
-
-            $manager->persist($annonce);
         }
     }
 
@@ -266,7 +149,6 @@ class AppFixtures extends Fixture
 
     private function hashPassword(User $user): void
     {
-        // Créer un proxy pour permettre le hashage
         $proxy = new class($user) implements PasswordAuthenticatedUserInterface {
             public function __construct(private User $user) {}
 

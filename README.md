@@ -1,130 +1,180 @@
-# Plateforme de Dons et Troc
+# ULC'OCCAZ — Plateforme de Dons et Troc ULCO
 
-Projet Symfony avec React et PostgreSQL.
+Plateforme d'échanges entre étudiants et personnels de l'Université du Littoral Côte d'Opale.
 
-## Stack Technique
+## Stack technique
 
-- **Backend**: Symfony 7.4
-- **Frontend**: React 18 avec Symfony UX
-- **Base de données**: PostgreSQL 16
-- **Build**: Webpack Encore
+| Composant | Version |
+|---|---|
+| **Backend** | Symfony 7.4 (PHP 8.3+) |
+| **Frontend** | React 18 (via Symfony UX) |
+| **Base de données** | PostgreSQL 16 |
+| **Temps réel** | Mercure (notifications, messages) |
+| **Build assets** | Webpack Encore |
+| **Authentification** | Form login (prévu : CAS ULCO) |
+
+## Prérequis
+
+- PHP 8.3+ avec extensions : `pdo_pgsql`, `intl`, `mbstring`, `xml`
+- Composer 2+
+- Node.js 20+ et npm
+- PostgreSQL 16+
+- Mercure Hub (fourni via Docker Compose)
 
 ## Installation
 
-### Prérequis
-
-- PHP 8.3+
-- Composer
-- Node.js 20+
-- PostgreSQL 16+
-
-### Configuration de la base de données
-
-1. Créer une base de données PostgreSQL:
+### 1. Cloner le projet
 
 ```bash
-sudo -u postgres psql
-CREATE DATABASE plateforme_dons_troc;
-CREATE USER plateforme_user WITH PASSWORD 'plateforme_password';
-GRANT ALL PRIVILEGES ON DATABASE plateforme_dons_troc TO plateforme_user;
-\q
+git clone <url-du-repo>
+cd plateforme_dons_troc
 ```
 
-2. Mettre à jour le fichier `.env` si nécessaire (déjà configuré):
+### 2. Configurer l'environnement
 
-```env
-DATABASE_URL="postgresql://plateforme_user:plateforme_password@127.0.0.1:5432/plateforme_dons_troc?serverVersion=16&charset=utf8"
-```
-
-3. Créer le schéma de la base de données:
+Copier le fichier d'exemple et adapter les valeurs :
 
 ```bash
-php bin/console doctrine:migrations:migrate
+cp .env.example .env.local
 ```
 
-### Installation des dépendances
+Variables à configurer dans `.env.local` :
+
+| Variable | Description | Exemple |
+|---|---|---|
+| `APP_ENV` | Environnement (`dev` ou `prod`) | `prod` |
+| `APP_SECRET` | Clé secrète Symfony (32 caractères aléatoires) | `a1b2c3d4...` |
+| `DATABASE_URL` | Connexion PostgreSQL | `postgresql://user:pass@host:5432/dbname` |
+| `MAILER_DSN` | Serveur SMTP pour l'envoi d'emails | `smtp://user:pass@smtp.host:587` |
+| `MERCURE_URL` | URL interne du hub Mercure | `http://localhost:3000/.well-known/mercure` |
+| `MERCURE_PUBLIC_URL` | URL publique du hub Mercure | `https://domaine/.well-known/mercure` |
+| `MERCURE_JWT_SECRET` | Clé JWT pour Mercure (32+ caractères) | `ChangeMeTo...` |
+
+### 3. Installer les dépendances
 
 ```bash
-# Dépendances PHP
-composer install
-
-# Dépendances JavaScript
+composer install --no-dev --optimize-autoloader
 npm install
 ```
 
-### Compilation des assets
+### 4. Créer la base de données
 
 ```bash
-# Développement (une fois)
-npm run dev
+# Créer la base PostgreSQL
+sudo -u postgres psql -c "CREATE DATABASE plateforme_dons_troc;"
+sudo -u postgres psql -c "CREATE USER plateforme_user WITH PASSWORD 'MOT_DE_PASSE';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE plateforme_dons_troc TO plateforme_user;"
 
-# Développement (avec watch)
-npm run watch
-
-# Production
-npm run build
+# Exécuter les migrations
+php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-## Lancement du serveur
+### 5. Compiler les assets
 
 ```bash
-# Avec Symfony CLI
-symfony server:start
+# Production
+npm run build
 
-# Ou avec PHP built-in server
+# Développement (watch)
+npm run watch
+```
+
+### 6. Charger les données initiales (optionnel)
+
+```bash
+php bin/console doctrine:fixtures:load --no-interaction
+```
+
+### 7. Lancer les services
+
+```bash
+# Démarrer PostgreSQL et Mercure via Docker
+docker compose up -d
+
+# Lancer le serveur Symfony
+symfony server:start
+# ou
 php -S localhost:8000 -t public
 ```
 
-Accéder à l'application: http://localhost:8000
+## Services Docker Compose
 
-## Développement
+Le fichier `compose.yaml` fournit :
 
-### Structure des composants React
+| Service | Port | Description |
+|---|---|---|
+| **database** | 5432 | PostgreSQL 16 |
+| **mercure** | 3000 | Hub Mercure (notifications temps réel) |
 
-Les composants React sont dans `assets/react/controllers/`. Exemple:
+En développement, `compose.override.yaml` ajoute :
 
-```jsx
-// assets/react/controllers/Hello.jsx
-import React from 'react';
+| Service | Port | Description |
+|---|---|---|
+| **mailer** | 1025 / 8025 | Mailpit (capture d'emails en local) |
 
-export default function (props) {
-    return <div>Hello {props.fullName}</div>;
-}
-```
-
-### Utilisation dans Twig
-
-```twig
-<div {{ react_component('Hello', { fullName: 'Saif' }) }}>
-    Chargement...
-</div>
-```
-
-### Commandes utiles
+## Déploiement en production
 
 ```bash
-# Créer un nouveau contrôleur
-php bin/console make:controller
+# 1. Configurer .env.local avec APP_ENV=prod
+# 2. Installer les dépendances
+composer install --no-dev --optimize-autoloader
 
-# Créer une nouvelle entité
-php bin/console make:entity
+# 3. Compiler les assets
+npm run build
 
-# Créer une migration
-php bin/console make:migration
+# 4. Vider le cache
+php bin/console cache:clear --env=prod
 
-# Exécuter les migrations
-php bin/console doctrine:migrations:migrate
+# 5. Exécuter les migrations
+php bin/console doctrine:migrations:migrate --no-interaction
 
-# Vider le cache
-php bin/console cache:clear
+# 6. Configurer le serveur web (Apache/Nginx) vers public/
 ```
 
-## Tests
+### Configuration Apache (exemple)
+
+```apache
+<VirtualHost *:443>
+    ServerName votre-domaine.univ-littoral.fr
+    DocumentRoot /chemin/vers/plateforme_dons_troc/public
+
+    <Directory /chemin/vers/plateforme_dons_troc/public>
+        AllowOverride All
+        Require all granted
+        FallbackResource /index.php
+    </Directory>
+</VirtualHost>
+```
+
+## Architecture du projet
+
+```
+src/
+├── Controller/          # Contrôleurs Symfony (routes)
+│   └── Api/             # Contrôleurs API (JSON)
+├── Entity/              # Entités Doctrine (modèles BD)
+├── Repository/          # Requêtes base de données
+├── Security/            # Authentification et autorisations
+├── Enum/                # Énumérations (Campus, Types...)
+├── EventSubscriber/     # Listeners Symfony
+├── Command/             # Commandes console
+└── DataFixtures/        # Données de test
+
+assets/react/controllers/  # Composants React
+templates/                 # Templates Twig
+migrations/                # Migrations Doctrine
+config/                    # Configuration Symfony
+```
+
+## Commandes utiles
 
 ```bash
-php bin/phpunit
+php bin/console cache:clear          # Vider le cache
+php bin/console debug:router         # Lister les routes
+php bin/console doctrine:migrations:migrate  # Appliquer les migrations
+php bin/console doctrine:fixtures:load       # Charger les fixtures
 ```
 
 ## Licence
 
-UNLICENSED - Projet privé
+Projet universitaire — EILCO / Université du Littoral Côte d'Opale

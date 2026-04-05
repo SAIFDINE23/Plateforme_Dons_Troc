@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
-// Les 4 sections de la charte
+// Les 4 sections des conditions générales d'utilisation
 const CHARTE_SECTIONS = [
     {
         id: 1,
@@ -16,7 +16,7 @@ const CHARTE_SECTIONS = [
             • Réduction des gaspillages
             • Création d'une économie circulaire étudiante
 
-            En acceptant cette charte, vous vous engagez à participer activement à cette communauté 
+            En acceptant ces conditions générales d'utilisation, vous vous engagez à participer activement à cette communauté 
             d'entraide et à contribuer positivement au partage des ressources.
         `
     },
@@ -124,12 +124,12 @@ export default function CharteStepper() {
             if (!response.ok) {
                 const data = await response.json();
                 console.log('Error data:', data);
-                throw new Error(data.message || 'Erreur lors de l\'acceptation de la charte');
+                throw new Error(data.message || 'Erreur lors de l\'acceptation des conditions générales d\'utilisation');
             }
 
             const result = await response.json();
             console.log('Success result:', result);
-            toast.success('Charte acceptée avec succès !');
+            toast.success('Conditions générales d\'utilisation acceptées avec succès !');
             
             // Redirection vers la page d'accueil après 0.5 seconde
             setTimeout(() => {
@@ -137,7 +137,7 @@ export default function CharteStepper() {
             }, 500);
         } catch (error) {
             console.error('Erreur:', error);
-            toast.error(error.message || 'Erreur lors de l\'acceptation de la charte');
+            toast.error(error.message || 'Erreur lors de l\'acceptation des conditions générales d\'utilisation');
             setLoading(false);
         }
     };
@@ -153,10 +153,10 @@ export default function CharteStepper() {
                     <div style={{ backgroundColor: '#001a33', color: 'white', padding: '3rem 2rem' }}>
                         <h1 className="h2 mb-2">
                             <i className="bi bi-file-earmark-check me-2"></i>
-                            Charte ULC'OCCAZ
+                            Conditions générales d'utilisation
                         </h1>
                         <p className="text-white-50 mb-0">
-                            Acceptez notre charte pour accéder à la plateforme
+                            Acceptez nos conditions générales d'utilisation pour accéder à la plateforme
                         </p>
                     </div>
 
@@ -268,7 +268,7 @@ export default function CharteStepper() {
                                             ) : (
                                                 <>
                                                     <i className="bi bi-check-all me-2"></i>
-                                                    Accepter la charte et finaliser mon inscription
+                                                    Accepter les conditions générales d'utilisation et finaliser mon inscription
                                                 </>
                                             )}
                                         </button>
@@ -304,7 +304,7 @@ export default function CharteStepper() {
                         style={{ backgroundColor: '#f8f9fa' }}
                     >
                         <p className="mb-0">
-                            En acceptant cette charte, vous acceptez nos conditions d'utilisation.
+                            En acceptant ces conditions générales d'utilisation, vous acceptez nos conditions d'utilisation.
                         </p>
                     </div>
                 </div>

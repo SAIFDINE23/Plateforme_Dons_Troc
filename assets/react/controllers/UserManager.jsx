@@ -98,10 +98,26 @@ export default function UserManager() {
                 throw new Error(data.error || 'Erreur lors de la mise à jour');
             }
 
-            await loadUsers();
-            setSelectedUser(null);
+            // Fermer la modale proprement AVANT de recharger
             const modalEl = document.getElementById('roleModal');
-            window.bootstrap.Modal.getInstance(modalEl)?.hide();
+            const modalInstance = window.bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            } else {
+                // Fallback : forcer la fermeture manuellement
+                modalEl?.classList.remove('show');
+                modalEl?.setAttribute('aria-hidden', 'true');
+                modalEl?.removeAttribute('aria-modal');
+                modalEl?.style && (modalEl.style.display = 'none');
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }
+
+            setSelectedUser(null);
+            await loadUsers();
+            toast.success('Rôle mis à jour avec succès.');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -217,6 +233,31 @@ export default function UserManager() {
                                     </td>
                                     <td className="text-end">
                                         <div className="d-flex gap-2 justify-content-end">
+                                            {/* RESPONSABLE : ne peut pas être modifié */}
+                                            {user.roles.includes('ROLE_RESPONSABLE') && (
+                                                <span className="badge bg-warning text-dark">Protégé</span>
+                                            )}
+
+                                            {/* MODERATOR : seul le responsable peut modifier son rôle */}
+                                            {!user.roles.includes('ROLE_RESPONSABLE') && user.roles.includes('ROLE_MODERATOR') && (
+                                                <>
+                                                    {currentUserRole === 'RESPONSABLE' && (
+                                                        <>
+                                                            <button
+                                                                className="btn btn-sm btn-outline-primary"
+                                                                onClick={() => openRoleModal(user)}
+                                                            >
+                                                                ✏️ Modifier rôle
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {currentUserRole !== 'RESPONSABLE' && (
+                                                        <span className="badge bg-warning text-dark">Protégé</span>
+                                                    )}
+                                                </>
+                                            )}
+
+                                            {/* USER normal : bannir + modifier rôle (responsable) */}
                                             {!user.roles.includes('ROLE_RESPONSABLE') && !user.roles.includes('ROLE_MODERATOR') && (
                                                 <>
                                                     <button
@@ -225,7 +266,6 @@ export default function UserManager() {
                                                     >
                                                         {user.is_banned ? 'Réactiver' : '🚫 Bannir'}
                                                     </button>
-                                                    {/* Seuls les RESPONSABLE peuvent modifier les rôles */}
                                                     {currentUserRole === 'RESPONSABLE' && (
                                                         <button
                                                             className="btn btn-sm btn-outline-primary"
@@ -235,9 +275,6 @@ export default function UserManager() {
                                                         </button>
                                                     )}
                                                 </>
-                                            )}
-                                            {(user.roles.includes('ROLE_RESPONSABLE') || user.roles.includes('ROLE_MODERATOR')) && (
-                                                <span className="badge bg-warning text-dark">Protégé</span>
                                             )}
                                         </div>
                                     </td>

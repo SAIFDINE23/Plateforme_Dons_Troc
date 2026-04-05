@@ -265,6 +265,48 @@ h1, h2, h3, h4, h5, h6,
     }
   }
   
+  // ========== BOUTON MODÉRATION ==========
+  .btn-moderation {
+    color: white !important;
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, #d9534f, #c0392b);
+    padding: 0.5rem 1.15rem;
+    border-radius: $border-radius;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 3px 12px rgba(#d9534f, 0.35);
+    transition: all 0.25s ease;
+    text-decoration: none !important;
+    position: relative;
+
+    i {
+      font-size: 1.1rem;
+    }
+
+    .moderation-pulse {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background-color: #ffc107;
+      border-radius: 50%;
+      animation: pulse-indicator 2s infinite;
+      box-shadow: 0 0 6px rgba(#ffc107, 0.6);
+    }
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #c0392b, #a93226);
+      color: white !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(#d9534f, 0.45);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
   // ========== BARRE DE DROITE ==========
   .navbar-notifications {
     display: flex;

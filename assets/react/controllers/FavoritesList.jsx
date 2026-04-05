@@ -63,7 +63,7 @@ export default function FavoritesList() {
                     <p className="text-muted mb-4">
                         Ajoutez des annonces à vos favoris pour les retrouver facilement.
                     </p>
-                    <a href="/" className="btn btn-primary btn-pill d-inline-flex align-items-center gap-2">
+                    <a href="/home" className="btn btn-primary btn-pill d-inline-flex align-items-center gap-2">
                         <span>Explorer les annonces</span>
                         <ArrowRight size={18} />
                     </a>

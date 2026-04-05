@@ -177,8 +177,9 @@ export default function AnnonceShow({ id }) {
         title,
         description,
         price,
-        campus,
+        campuses,
         categoryName,
+        customCategoryName,
         image,
         images,
         owner,
@@ -351,7 +352,9 @@ export default function AnnonceShow({ id }) {
                                     <h6 className="text-muted mb-0 small">Campus</h6>
                                 </div>
                                 <p className="fw-bold mb-0">
-                                    {campusLabels[campus] || campus}
+                                    {campuses && campuses.length > 0
+                                        ? campuses.map(c => campusLabels[c] || c).join(', ')
+                                        : 'Non spécifié'}
                                 </p>
                             </div>
                             <div className="col-6">
@@ -359,7 +362,7 @@ export default function AnnonceShow({ id }) {
                                     <Tag size={18} style={{ color: '#F07D00' }} />
                                     <h6 className="text-muted mb-0 small">Catégorie</h6>
                                 </div>
-                                <p className="fw-bold mb-0">{categoryName || 'Non catégorisé'}</p>
+                                <p className="fw-bold mb-0">{customCategoryName || categoryName || 'Non catégorisé'}</p>
                             </div>
                         </div>
                     </div>

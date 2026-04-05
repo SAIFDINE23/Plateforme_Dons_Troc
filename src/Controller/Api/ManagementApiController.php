@@ -79,7 +79,8 @@ class ManagementApiController extends AbstractController
         $qb = $annonceRepository->createQueryBuilder('a')
             ->leftJoin('a.owner', 'u')
             ->leftJoin('a.images', 'img')
-            ->addSelect('u', 'img')
+            ->leftJoin('a.category', 'c')
+            ->addSelect('u', 'img', 'c')
             ->where('a.state = :state')
             ->setParameter('state', AnnonceState::PENDING_REVIEW)
             ->orderBy('a.createdAt', 'ASC');
@@ -101,6 +102,11 @@ class ManagementApiController extends AbstractController
                 'description' => mb_convert_encoding(substr($annonce->getDescription(), 0, 150), 'UTF-8', 'UTF-8') . '...',
                 'owner' => $annonce->getOwner()->getCasUid(),
                 'campuses' => $annonce->getCampuses(),
+                'category' => $annonce->getCategory() ? [
+                    'id' => $annonce->getCategory()->getId(),
+                    'name' => mb_convert_encoding($annonce->getCategory()->getName(), 'UTF-8', 'UTF-8')
+                ] : null,
+                'customCategoryName' => $annonce->getCustomCategoryName(),
                 'date' => $annonce->getCreatedAt()->format('d/m/Y H:i'),
                 'image' => $image,
             ];
@@ -157,6 +163,7 @@ class ManagementApiController extends AbstractController
             'type' => $annonce->getType()->value,
             'price' => $annonce->getType()->value === 'DON' ? 'Gratuit' : 'Troc',
             'category' => $annonce->getCategory()?->getName(),
+            'customCategoryName' => $annonce->getCustomCategoryName(),
             'state' => $annonce->getState()->value,
             'owner' => [
                 'cas_uid' => $annonce->getOwner()->getCasUid(),

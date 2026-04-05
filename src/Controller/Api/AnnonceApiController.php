@@ -134,6 +134,7 @@ class AnnonceApiController extends AbstractController
                     'id' => $annonce->getCategory()->getId(),
                     'name' => mb_convert_encoding($annonce->getCategory()->getName(), 'UTF-8', 'UTF-8')
                 ] : null,
+                'customCategoryName' => $annonce->getCustomCategoryName(),
                 'owner' => $annonce->getOwner()->getCasUid(),
                 'image' => $image,
                 'images' => $images,
@@ -223,6 +224,7 @@ class AnnonceApiController extends AbstractController
             'price' => $displayPrice,
             'categoryId' => $annonce->getCategory()?->getId(),
             'categoryName' => $annonce->getCategory()?->getName(),
+            'customCategoryName' => $annonce->getCustomCategoryName(),
             'state' => $annonce->getState()->value,
             'image' => $image,
             'images' => $images,

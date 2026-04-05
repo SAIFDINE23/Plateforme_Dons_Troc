@@ -1,86 +1,218 @@
 {% extends "base.html.twig" %}
 
-{% block title %}Connexion - Plateforme de Dons et Troc{% endblock %}
+{% block title %}Connexion — ULC'OCCAZ{% endblock %}
 
 {% block body %}
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center;">
-    <div style="width: 100%; max-width: 400px; margin: 0 auto;">
-        <div style="background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;">
-            <!-- Header -->
-            <div style="background: #667eea; color: white; padding: 30px; text-align: center;">
-                <h1 style="margin: 0; font-size: 24px;">Plateforme de Dons et Troc</h1>
-                <p style="margin: 10px 0 0 0; opacity: 0.9;">Système d'authentification Mock</p>
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            {# En-tête avec logo ULCO #}
+            <div class="login-header">
+                <img src="{{ asset('images/ulco.png') }}" alt="ULCO" class="login-logo">
+                <h1 class="login-title">ULC'OCCAZ</h1>
+                <p class="login-subtitle">Plateforme de dons et troc universitaire</p>
             </div>
 
-            <!-- Body -->
-            <div style="padding: 30px;">
+            {# Corps du formulaire #}
+            <div class="login-body">
                 {% if error %}
-                    <div style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; padding: 12px; margin-bottom: 20px;">
-                        <strong>Erreur d'authentification:</strong><br>
+                    <div class="login-error">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
                         {{ error.messageKey|trans(error.messageData, 'security') }}
                     </div>
                 {% endif %}
 
-                <form method="post" action="{{ path('app_login') }}" style="margin: 0;">
-                    <!-- Champ CAS UID -->
-                    <div style="margin-bottom: 20px;">
-                        <label for="cas_uid" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
-                            Identifiant ULCO
+                <form method="post" action="{{ path('app_login') }}">
+                    <div class="login-field">
+                        <label for="cas_uid" class="login-label">
+                            <i class="bi bi-person-fill me-1"></i> Identifiant ULCO
                         </label>
                         <input 
                             type="text" 
                             id="cas_uid" 
                             name="cas_uid" 
-                            class="form-control"
+                            class="login-input"
                             value="{{ last_cas_uid }}"
-                            placeholder="ex: aglobal"
+                            placeholder="Votre identifiant"
                             required
                             autofocus
-                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;"
                         >
                     </div>
 
-                    <!-- Champ Password -->
-                    <div style="margin-bottom: 20px;">
-                        <label for="password" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
-                            Mot de passe
+                    <div class="login-field">
+                        <label for="password" class="login-label">
+                            <i class="bi bi-lock-fill me-1"></i> Mot de passe
                         </label>
                         <input 
                             type="password" 
                             id="password" 
                             name="password" 
-                            class="form-control"
-                            placeholder="00000000"
+                            class="login-input"
+                            placeholder="Votre mot de passe"
                             required
-                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;"
                         >
                     </div>
 
-                    <!-- CSRF Token -->
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.3s;"
-                        onmouseover="this.style.background='#5568d3'"
-                        onmouseout="this.style.background='#667eea'"
-                    >
-                        Se connecter
+                    <button type="submit" class="login-btn">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
                     </button>
                 </form>
+
+                <a href="{{ path('app_landing') }}" class="login-home-link">
+                    <i class="bi bi-house-door me-1"></i>Retour à l'accueil
+                </a>
             </div>
 
-            <!-- Footer avec comptes de test -->
-            <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #e9ecef;">
-                <h6 style="margin-top: 0; margin-bottom: 12px; color: #333;">📋 Comptes de test disponibles:</h6>
-                <div style="background: white; border-left: 3px solid #667eea; padding: 10px; font-size: 13px; line-height: 1.6;">
-                    <strong>Admin Global:</strong> aglobal / 00000000<br>
-                    <strong>Modérateur Calais:</strong> jdupont / 00000000<br>
-                    <strong>Étudiant:</strong> sleroy / 00000000
-                </div>
+            {# Pied de carte #}
+            <div class="login-footer">
+                <i class="bi bi-shield-lock me-1"></i>
+                Connexion sécurisée — Université du Littoral Côte d'Opale
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    {# Masquer la navbar et le footer sur la page de login #}
+    .navbar-eilco, .footer-eilco { display: none !important; }
+    main { padding: 0 !important; }
+    main > .container { max-width: 100% !important; padding: 0 !important; }
+
+    .login-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #004E86 0%, #009FE3 50%, #004E86 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .login-header {
+        background: white;
+        padding: 2rem 2rem 1.5rem;
+        text-align: center;
+        border-bottom: 3px solid #009FE3;
+    }
+
+    .login-logo {
+        height: 60px;
+        width: auto;
+        margin-bottom: 1rem;
+    }
+
+    .login-title {
+        color: #004E86;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem;
+        letter-spacing: 1px;
+    }
+
+    .login-subtitle {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .login-body {
+        padding: 2rem;
+    }
+
+    .login-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .login-field {
+        margin-bottom: 1.25rem;
+    }
+
+    .login-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #374151;
+    }
+
+    .login-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .login-input:focus {
+        border-color: #009FE3;
+        box-shadow: 0 0 0 3px rgba(0, 159, 227, 0.15);
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 0.85rem;
+        background: linear-gradient(135deg, #004E86, #009FE3);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        margin-top: 0.5rem;
+    }
+
+    .login-btn:hover {
+        background: linear-gradient(135deg, #003d6b, #0086c3);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 78, 134, 0.35);
+    }
+
+    .login-home-link {
+        display: block;
+        text-align: center;
+        margin-top: 1.25rem;
+        color: #004E86;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .login-home-link:hover {
+        color: #009FE3;
+        text-decoration: underline;
+    }
+
+    .login-footer {
+        background: #f9fafb;
+        text-align: center;
+        padding: 1rem 2rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+        border-top: 1px solid #f3f4f6;
+    }
+</style>
 {% endblock %}
