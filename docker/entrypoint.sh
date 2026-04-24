@@ -22,6 +22,11 @@ php bin/console cache:warmup --env=prod --no-debug 2>/dev/null || true
 echo "📦 Exécution des migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || echo "⚠️  Migrations échouées (la base est peut-être déjà à jour)"
 
+if [ "$APP_BOOTSTRAP_USERS" = "1" ] || [ "$APP_BOOTSTRAP_USERS" = "true" ]; then
+    echo "👥 Création des comptes par défaut..."
+    php bin/console app:bootstrap-default-data --no-interaction 2>&1 || echo "⚠️  Bootstrap des comptes échoué"
+fi
+
 echo "✅ Application prête !"
 
 # Démarrer supervisord (PHP-FPM + Nginx)
