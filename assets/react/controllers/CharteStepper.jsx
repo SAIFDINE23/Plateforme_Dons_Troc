@@ -131,9 +131,9 @@ export default function CharteStepper() {
             console.log('Success result:', result);
             toast.success('Conditions générales d\'utilisation acceptées avec succès !');
             
-            // Redirection vers la page d'accueil après 0.5 seconde
+            // Redirection vers le choix d'alias après 0.5 seconde
             setTimeout(() => {
-                window.location.href = '/home';
+                window.location.href = '/choisir-alias';
             }, 500);
         } catch (error) {
             console.error('Erreur:', error);

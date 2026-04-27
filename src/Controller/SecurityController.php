@@ -18,15 +18,15 @@ class SecurityController extends AbstractController
             /** @var User $user */
             $user = $this->getUser();
 
-            // Vérifier si l'utilisateur a défini un alias
-            if ($user->getAlias() === null || trim($user->getAlias()) === '') {
-                return $this->redirectToRoute('app_user_alias_setup');
-            }
-            
             // Vérifier si l'utilisateur a accepté la charte
             if ($user->getCharteAgreements()->isEmpty()) {
                 // Pas accepté la charte → rediriger vers le stepper
                 return $this->redirectToRoute('app_charte_stepper');
+            }
+
+            // Vérifier si l'utilisateur a défini un alias
+            if ($user->getAlias() === null || trim($user->getAlias()) === '') {
+                return $this->redirectToRoute('app_user_alias_setup');
             }
             
             // Charte acceptée → rediriger vers l'accueil

@@ -54,19 +54,17 @@ class CharteSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Obliger un alias unique au premier login
-        if ($user->getAlias() === null || trim($user->getAlias()) === '') {
-            $url = $this->urlGenerator->generate('app_user_alias_setup');
+        $hasSigned = $this->charteAgreementRepository->count(['user' => $user]) > 0;
+        if (!$hasSigned) {
+            $url = $this->urlGenerator->generate('app_charte_stepper');
             $event->setResponse(new RedirectResponse($url));
             return;
         }
 
-        $hasSigned = $this->charteAgreementRepository->count(['user' => $user]) > 0;
-        if ($hasSigned) {
-            return;
+        // Obliger un alias unique après l'acceptation des conditions générales d'utilisation
+        if ($user->getAlias() === null || trim($user->getAlias()) === '') {
+            $url = $this->urlGenerator->generate('app_user_alias_setup');
+            $event->setResponse(new RedirectResponse($url));
         }
-
-        $url = $this->urlGenerator->generate('app_charte_stepper');
-        $event->setResponse(new RedirectResponse($url));
     }
 }
